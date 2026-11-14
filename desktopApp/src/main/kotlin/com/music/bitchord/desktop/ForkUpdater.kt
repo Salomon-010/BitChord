@@ -193,7 +193,7 @@ internal object ForkUpdater {
         stallMillis: Long = STALL_MILLIS,
         onProgress: (Float?) -> Unit,
     ): Path = withContext(Dispatchers.IO) {
-        val dir = into ?: throw UpdateFailed("This copy of BitChord can't update itself.")
+        val dir = into ?: throw UpdateFailed("This copy of Sigui can't update itself.")
         val zipUrl = info.downloadUrl ?: throw UpdateFailed("The release has no Windows download.")
         val sumsUrl = info.sumsUrl ?: throw UpdateFailed("The release has no $SUMS_NAME to check the download against.")
         clear(dir.resolve("staged"))
@@ -360,8 +360,8 @@ internal object ForkUpdater {
      * unzipped without it, say).
      */
     fun startUpdater(root: Path) {
-        val app = appFolder ?: throw UpdateFailed("This copy of BitChord can't update itself.")
-        val dir = updateDir ?: throw UpdateFailed("This copy of BitChord can't update itself.")
+        val app = appFolder ?: throw UpdateFailed("This copy of Sigui can't update itself.")
+        val dir = updateDir ?: throw UpdateFailed("This copy of Sigui can't update itself.")
         val source = listOf(app.resolve(UPDATER_EXE), root.resolve(UPDATER_EXE)).firstOrNull(Files::isRegularFile)
             ?: throw UpdateFailed("$UPDATER_EXE is missing. Download the zip from the releases page instead.")
         val updater = dir.resolve(UPDATER_EXE)

@@ -427,14 +427,14 @@ internal object ForkBackup {
         } catch (e: java.nio.file.NoSuchFileException) {
             error("That file isn't there any more")
         } catch (e: java.nio.file.AccessDeniedException) {
-            error("BitChord isn't allowed to read that file")
+            error("Sigui isn't allowed to read that file")
         } catch (e: java.nio.charset.CharacterCodingException) {
-            error("That doesn't look like a BitChord backup")
+            error("That doesn't look like a Sigui backup")
         }
         val file = runCatching { ForkBackupFormat.json.decodeFromString(BackupFile.serializer(), text) }
-            .getOrElse { error("That doesn't look like a BitChord backup") }
+            .getOrElse { error("That doesn't look like a Sigui backup") }
         require(file.app == ForkBackupFormat.APP_TAG) { "That backup is from another app" }
-        require(file.version <= ForkBackupFormat.SCHEMA_VERSION) { "That backup was written by a newer version of BitChord" }
+        require(file.version <= ForkBackupFormat.SCHEMA_VERSION) { "That backup was written by a newer version of Sigui" }
         val problems = apply(file)
         return Summary(file.listening.size, file.settings.size, file.versionName, file.exportedAt, problems)
     }
@@ -740,7 +740,7 @@ internal fun ForkBackupGroup() {
                         "import_backup_warning",
                         "This replaces this device’s settings and listening history with the contents of the file. " +
                             "Export the current data first if you want to keep it.",
-                    ] + " BitChord closes when it is done, so nothing open writes the old settings back.",
+                    ] + " Sigui closes when it is done, so nothing open writes the old settings back.",
                 )
             },
             confirmButton = {
@@ -767,8 +767,8 @@ internal fun ForkBackupGroup() {
         AlertDialog(
             onDismissRequest = {},
             title = { Text("Backup imported") },
-            text = { Text("$message BitChord closes now; open it again to use the imported settings.") },
-            confirmButton = { TextButton(onClick = { DesktopTrayMenu.forkQuit() }) { Text("Close BitChord") } },
+            text = { Text("$message Sigui closes now; open it again to use the imported settings.") },
+            confirmButton = { TextButton(onClick = { DesktopTrayMenu.forkQuit() }) { Text("Close Sigui") } },
         )
     }
 }

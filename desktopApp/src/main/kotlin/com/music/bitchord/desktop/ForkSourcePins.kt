@@ -185,7 +185,7 @@ internal fun ForkPipelineSourceChooser() {
     Text(
         DesktopStrings[
             "d_track_info_hint",
-            "Applies to this track only. BitChord falls back to the usual order when the source you picked has no copy of it.",
+            "Applies to this track only. Sigui falls back to the usual order when the source you picked has no copy of it.",
         ],
         color = DesktopSecondary,
         style = MaterialTheme.typography.bodySmall,

@@ -181,7 +181,7 @@ internal object ForkSourceHints {
         append(
             DesktopStrings[
                 "sources_order_footer",
-                "If a source does not have a track or cannot be reached, BitChord tries the next one. " +
+                "If a source does not have a track or cannot be reached, Sigui tries the next one. " +
                     "Sources above YouTube can replace its recording when they return a better version.",
             ],
         )

@@ -128,7 +128,7 @@ internal object ForkLyricsShare {
     private const val LOGO_W = 66f
     private const val LOGO_H = 44f
     private const val LOGO_GAP = 20f
-    private const val BRAND = "BitChord"
+    private const val BRAND = "Sigui"
     private const val HEADER_BASELINE = 132f
     private const val HEADER_BOTTOM = 170f
     private const val GAP_ABOVE_BODY = 20f

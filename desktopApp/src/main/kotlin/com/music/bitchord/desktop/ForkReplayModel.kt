@@ -244,5 +244,5 @@ internal object ForkReplayText {
         }
 
     /** Whose Replay it is, the phone's stand-in when nobody is signed in. */
-    fun holder(name: String): String = name.ifBlank { t("default_replay_holder", "BitChord listener") }
+    fun holder(name: String): String = name.ifBlank { t("default_replay_holder", "Sigui listener") }
 }

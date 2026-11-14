@@ -222,7 +222,7 @@ internal object ForkReplayPoster {
                 drawCard(ink, summary, genres, page, covers, y + 56f)
             }
             ink.text(
-                ForkReplayText.t("counted_on_device_with_bitchord", "Counted on this device with BitChord"),
+                ForkReplayText.t("counted_on_device_with_bitchord", "Counted on this device with Sigui"),
                 MARGIN, H - 64f, label(24f, 0x73FFFFFF, tracking = 0.08f),
             )
             val snapshot = surface.makeImageSnapshot()
@@ -351,8 +351,8 @@ internal object ForkReplayPoster {
     private fun drawHeader(ink: Ink, logo: ByteArray?, summary: DesktopReplaySummary, holder: String, memberSince: String?): Float {
         ink.text(ForkReplayText.title(ForkReplayText.label(summary.period)), MARGIN, 132f, heading(46f, 0xFFFFFFFF.toInt()))
         val brand = heading(46f, 0xE6FFFFFF.toInt())
-        ink.text("BitChord", W - MARGIN, 132f, brand, alignRight = true)
-        logo?.let { drawLogo(ink.canvas, it, W - MARGIN - ink.width("BitChord", brand) - LOGO_GAP, 132f) }
+        ink.text("Sigui", W - MARGIN, 132f, brand, alignRight = true)
+        logo?.let { drawLogo(ink.canvas, it, W - MARGIN - ink.width("Sigui", brand) - LOGO_GAP, 132f) }
         val credit = listOfNotNull(
             ForkReplayText.holder(holder),
             memberSince?.let { DesktopStrings.format("member_since_value", it, fallback = "Member since %1\$s") },

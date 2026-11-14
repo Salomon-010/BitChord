@@ -26,7 +26,7 @@ import com.music.bitchord.playback.smart.AutomixStyle
 @Composable
 internal fun ForkAutomixStyleSetting() {
     val title = "Automix style"
-    val subtitle = "BitChord's own mixes, or the YouTube Music extension's AutoDJ"
+    val subtitle = "Sigui's own mixes, or the YouTube Music extension's AutoDJ"
     val style by ForkDesktopAutomixStyle.style.collectAsState()
     if (settingsRowVisible(title, subtitle)) Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
         Text(title, fontWeight = FontWeight.Medium)
@@ -58,7 +58,7 @@ internal fun ForkAutomixStyleSetting() {
 }
 
 private fun detail(style: AutomixStyle): String = when (style) {
-    AutomixStyle.BITCHORD -> "BitChord's own Automix"
+    AutomixStyle.BITCHORD -> "Sigui's own Automix"
     AutomixStyle.ORIGINAL ->
         "The extension's Automix: phrase-aligned blends ending with the song, a bass swap and a high-shelf cross, tempo only ever sped up"
     AutomixStyle.ADVANCED ->

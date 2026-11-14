@@ -434,7 +434,7 @@ private fun EmptyReplay(period: DesktopReplayPeriod) {
             when (period) {
                 DesktopReplayPeriod.THIS_WEEK -> ForkReplayText.t("not_enough_this_week", "Play a few more songs this week to unlock your Replay.")
                 DesktopReplayPeriod.THIS_MONTH -> ForkReplayText.t("not_enough_this_month", "Play a few more songs this month to unlock your Replay.")
-                else -> ForkReplayText.t("replay_empty_description", "Listen a little more and BitChord will turn your history into a Replay.")
+                else -> ForkReplayText.t("replay_empty_description", "Listen a little more and Sigui will turn your history into a Replay.")
             },
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.6f),

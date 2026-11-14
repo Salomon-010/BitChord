@@ -36,7 +36,7 @@ internal fun ForkUpdateNotes(version: String, current: String, notes: String?) {
     val scroll = rememberScrollState()
     Box(Modifier.heightIn(max = 360.dp)) {
         Column(Modifier.verticalScroll(scroll).padding(end = 12.dp)) {
-            Text("BitChord $version is out — you have $current.")
+            Text("Sigui $version is out — you have $current.")
             notes?.takeIf { it.isNotBlank() }?.let { text ->
                 Spacer(Modifier.height(12.dp))
                 // As the phone's UpdateAvailableDialog: rendered, not raw. The releases' changelog is

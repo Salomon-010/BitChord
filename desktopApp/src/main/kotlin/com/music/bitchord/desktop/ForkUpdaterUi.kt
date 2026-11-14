@@ -148,7 +148,7 @@ internal object ForkUpdateFlow {
     const val QUIT_GRACE_MS = 20_000L
 
     const val QUIT_STALLED =
-        "BitChord didn't close by itself. Close it now to finish the update (the queue may not be saved), or quit it later: the update goes on once it is closed."
+        "Sigui didn't close by itself. Close it now to finish the update (the queue may not be saved), or quit it later: the update goes on once it is closed."
 
     /**
      * "Close now" after a quit that hung: the normal quit already failed to end the process, so
@@ -249,14 +249,14 @@ internal fun ForkUpdaterHost() {
                     is ForkUpdateFlow.Phase.Ready -> {
                         Text(DesktopStrings.format("update_ready_body", label, fallback = "bitchord %1\$s is ready to install."))
                         Text(
-                            "BitChord closes, swaps its program files (your settings and data stay) and opens again.",
+                            "Sigui closes, swaps its program files (your settings and data stay) and opens again.",
                             style = MaterialTheme.typography.bodySmall,
                             color = DesktopSecondary,
                             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                         )
                     }
                     ForkUpdateFlow.Phase.Installing -> {
-                        Text("Closing BitChord to update…")
+                        Text("Closing Sigui to update…")
                         Spacer(Modifier.height(12.dp))
                     }
                     ForkUpdateFlow.Phase.QuitStalled -> {
@@ -325,8 +325,8 @@ internal fun ForkAboutSettingsGroup() {
             when (val s = state) {
                 ForkUpdateFlow.CheckState.Idle -> "Checked at start and every 12 hours"
                 ForkUpdateFlow.CheckState.Checking -> "Checking…"
-                ForkUpdateFlow.CheckState.UpToDate -> "BitChord is up to date"
-                is ForkUpdateFlow.CheckState.Found -> "BitChord ${s.label} is available"
+                ForkUpdateFlow.CheckState.UpToDate -> "Sigui is up to date"
+                is ForkUpdateFlow.CheckState.Found -> "Sigui ${s.label} is available"
                 is ForkUpdateFlow.CheckState.Failed -> "Couldn’t check for updates: ${s.message}"
             },
             onClick = {

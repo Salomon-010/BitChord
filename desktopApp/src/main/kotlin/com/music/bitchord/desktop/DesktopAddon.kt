@@ -291,7 +291,7 @@ internal class DesktopAddonClient(rawBaseUrl: String, private val forkSourceId: 
             }
             if (!manifest.isPlayable) {
                 val declared = manifest.resources.joinToString(", ")
-                throw DesktopAddonException("This addon declares $declared — BitChord needs search")
+                throw DesktopAddonException("This addon declares $declared — Sigui needs search")
             }
             if (manifest.requiresBitChordAuth) ForkAddonAuthGate.refuse(baseUrl) // fork
             ForkDesktopAddonLimits.declare(baseUrl, manifest.forkLimits) // fork: the addon's own limits
@@ -433,7 +433,7 @@ internal class DesktopAddonClient(rawBaseUrl: String, private val forkSourceId: 
                 code == 404 -> throw DesktopAddonNotFound()
                 code >= 500 -> throw DesktopAddonUnavailable("HTTP $code")
                 code != 429 -> throw DesktopAddonException("HTTP $code")
-                attempt >= MAX_RETRIES -> throw DesktopAddonUnavailable("This addon is rate limiting BitChord")
+                attempt >= MAX_RETRIES -> throw DesktopAddonUnavailable("This addon is rate limiting Sigui")
                 else -> {
                     ForkDesktopAddonLimits.rateLimited(baseUrl, url) // fork: a 429 teaches a limit (ForkDesktopAddonLimits)
                     retryAfterMs(response.headers["Retry-After"], attempt)
@@ -784,7 +784,7 @@ internal object DesktopAddonSource {
         // Never sent a `?drm=`, so an encrypted answer is an addon ignoring the protocol.
         if (answer.isEncrypted) {
             DesktopTrackLog.log(
-                "${config.displayName}: that rendition came back encrypted, which BitChord never asked for",
+                "${config.displayName}: that rendition came back encrypted, which Sigui never asked for",
             )
             return null
         }
@@ -889,7 +889,7 @@ internal object DesktopSourceFormats {
             parsed.protocol.name.lowercase() !in setOf("http", "https")
         ) {
             return@withContext Result.success(
-                DesktopDetectedFormat.Unsupported("That is not a web address BitChord can open"),
+                DesktopDetectedFormat.Unsupported("That is not a web address Sigui can open"),
             )
         }
         val base = DesktopAddonClient.normalizeBase(url)
@@ -929,7 +929,7 @@ internal object DesktopSourceFormats {
             ?: return DesktopDetectedFormat.Unsupported("That address did not return JSON")
         val obj = root as? JsonObject
             ?: return DesktopDetectedFormat.Unsupported(
-                "That JSON is a list, and every format BitChord reads is an object",
+                "That JSON is a list, and every format Sigui reads is an object",
             )
 
         // A module index first: its marker is unmistakable and belongs to no other format.
@@ -954,7 +954,7 @@ internal object DesktopSourceFormats {
                 manifest.id.isBlank() ->
                     DesktopDetectedFormat.Unsupported("That JSON has no addon id, so it is not a manifest")
                 !manifest.isPlayable -> DesktopDetectedFormat.Unsupported(
-                    "This addon declares ${manifest.resources.joinToString(", ")} — BitChord needs search",
+                    "This addon declares ${manifest.resources.joinToString(", ")} — Sigui needs search",
                 )
                 else -> DesktopDetectedFormat.Addon(manifest, DesktopAddonClient.normalizeBase(url))
             }
@@ -963,7 +963,7 @@ internal object DesktopSourceFormats {
         val listKey = obj.entries.firstOrNull { it.value is JsonArray && (it.value as JsonArray).isNotEmpty() }?.key
         if (listKey != null) {
             return DesktopDetectedFormat.Unsupported(
-                "That JSON lists \"$listKey\", which is not a format BitChord reads",
+                "That JSON lists \"$listKey\", which is not a format Sigui reads",
             )
         }
         val keys = obj.keys.take(4).joinToString(", ").ifBlank { "nothing" }

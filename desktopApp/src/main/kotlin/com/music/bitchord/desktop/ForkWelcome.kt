@@ -233,7 +233,7 @@ private fun ColumnScope.NamePage(name: String, onNameChange: (String) -> Unit, o
         modifier = Modifier.size(width = 46.dp, height = 30.dp),
     )
     Spacer(Modifier.height(24.dp))
-    Title(DesktopStrings["onboarding_title", "Millions of songs, stream on BitChord"])
+    Title(DesktopStrings["onboarding_title", "Millions of songs, stream on Sigui"])
     Spacer(Modifier.weight(1f))
     Text(
         DesktopStrings["onboarding_name_prompt", "What should we call you?"],

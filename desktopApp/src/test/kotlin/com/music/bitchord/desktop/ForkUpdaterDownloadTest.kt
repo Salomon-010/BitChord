@@ -280,7 +280,7 @@ class ForkUpdaterDownloadTest {
     fun aReleaseWithoutTheAppOrItsSumsIsNotInstalled() {
         assertEquals("The release has no Windows download.", failure(info(null)))
         assertTrue(failure(info("/dl/BitChord.Portable.zip", sums = false)).contains("SHA256SUMS.txt"))
-        assertEquals("This copy of BitChord can't update itself.", runBlocking {
+        assertEquals("This copy of Sigui can't update itself.", runBlocking {
             assertFailsWith<ForkUpdater.UpdateFailed> { ForkUpdater.prepare(info("/x"), into = null) {} }.message
         })
     }

@@ -70,7 +70,7 @@ internal object ForkUiScale {
 internal fun ForkUiScaleRow() {
     val percent by ForkUiScale.percent.collectAsState()
     val title = DesktopStrings["d_ui_scale", "UI scale"]
-    val subtitle = DesktopStrings["d_ui_scale_subtitle", "Zoom text, controls, and panels throughout BitChord."]
+    val subtitle = DesktopStrings["d_ui_scale_subtitle", "Zoom text, controls, and panels throughout Sigui."]
     if (!settingsRowVisible(title, subtitle)) return
     Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
         Text(title, fontWeight = FontWeight.Medium)

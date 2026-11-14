@@ -283,7 +283,7 @@ private fun StoryChrome(label: String, count: Int, current: Int, progress: Float
                 modifier = Modifier.size(width = 26.dp, height = 17.dp),
             )
             Spacer(Modifier.width(7.dp))
-            Text("BitChord", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.W700, color = Color.White.copy(alpha = 0.9f))
+            Text("Sigui", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.W700, color = Color.White.copy(alpha = 0.9f))
         }
     }
 }
