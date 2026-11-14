@@ -98,4 +98,7 @@
     <string name="n_hidden">Masqués : %1$d</string>
     <string name="d_your_playlists_will_appear_here">Vos playlists apparaîtront ici</string>
     <string name="d_yt_playlists">Playlists YT</string>
+    <!-- Sigui: the narrow window's floating navigation and the Navidrome home shelf -->
+    <string name="d_floating_play">Écouter</string>
+    <string name="d_recently_added">Ajouts récents</string>
 </resources>

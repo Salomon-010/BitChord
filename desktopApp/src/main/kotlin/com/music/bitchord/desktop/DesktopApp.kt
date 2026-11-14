@@ -5226,10 +5226,10 @@ private fun DesktopFloatingNavigation(
     onDestinationSelected: (DesktopDestination) -> Unit,
 ) {
     val tabs = listOf(
-        DesktopDestination.LISTEN_NOW to (BitChordIcons.Play to "Play"),
-        DesktopDestination.EXPLORE to (BitChordIcons.Explore to "Explore"),
-        DesktopDestination.LIBRARY to (BitChordIcons.Library to "Library"),
-        DesktopDestination.SEARCH to (BitChordIcons.Search to "Search"),
+        DesktopDestination.LISTEN_NOW to (BitChordIcons.Play to DesktopStrings["d_floating_play", "Play"]),
+        DesktopDestination.EXPLORE to (BitChordIcons.Explore to DesktopStrings["explore", "Explore"]),
+        DesktopDestination.LIBRARY to (BitChordIcons.Library to DesktopStrings["library", "Library"]),
+        DesktopDestination.SEARCH to (BitChordIcons.Search to DesktopStrings["search", "Search"]),
     )
     val selected = tabs.firstOrNull { it.first == destination }?.first ?: DesktopDestination.LIBRARY
     val shape = RoundedCornerShape(percent = 50)

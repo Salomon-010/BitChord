@@ -296,8 +296,8 @@ internal object ForkNavidrome {
     private const val PER_SHELF = 20
 
     /** `getAlbumList2` types, in the order the phone shows them. */
-    private val HOME_SHELVES = listOf(
-        "newest" to "Recently added",
+    private val HOME_SHELVES get() = listOf( // Sigui: a getter, so a title follows the app's language
+        "newest" to DesktopStrings["d_recently_added", "Recently added"],
         "recent" to "Recents",
         "frequent" to "Most played",
         "random" to "Random",
