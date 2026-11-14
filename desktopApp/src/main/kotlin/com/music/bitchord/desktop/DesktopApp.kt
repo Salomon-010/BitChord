@@ -6274,7 +6274,7 @@ private fun DesktopSettingsScreen(
                         DesktopStrings["automix_on_skip", "Automix on skip"],
                         DesktopStrings[
                             "automix_on_skip_subtitle",
-                            DesktopStrings["d_automix_on_skip_subtitle", "When you skip ahead, mix into the next song over ~15s instead of cutting"],
+                            "When you skip ahead, mix into the next song over ~15s instead of cutting",
                         ],
                         automixOnSkip,
                         onAutomixOnSkipChange,
@@ -6561,7 +6561,7 @@ private fun DesktopSettingsScreen(
                         DesktopStrings["filter_non_music_audio", "Filter non-music audio"],
                         DesktopStrings[
                             "filter_non_music_audio_subtitle",
-                            DesktopStrings["d_local_filter_subtitle", "Hides clips under 30 seconds, WAV files, voice notes, recordings and system sounds"],
+                            "Hides clips under 30 seconds, WAV files, voice notes, recordings and system sounds",
                         ],
                         filterNonMusicAudio,
                         onFilterNonMusicAudioChange,
@@ -6603,7 +6603,7 @@ private fun DesktopSettingsScreen(
                         val materialTitle = DesktopStrings["d_window_material", "Window material"]
                         val materialSubtitle = DesktopStrings[
                             "d_window_material_subtitle",
-                            DesktopStrings["d_window_material_subtitle", "Sets the material for the sidebar and top bar"],
+                            "Sets the material for the sidebar and top bar",
                         ]
                         if (settingsRowVisible(materialTitle, materialSubtitle)) {
                             Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
@@ -6645,7 +6645,7 @@ private fun DesktopSettingsScreen(
                             DesktopStrings["d_app_background", "App background"],
                             DesktopStrings[
                                 "d_app_background_subtitle",
-                                DesktopStrings["d_app_background_subtitle", "Use the window material instead of a solid gray background"],
+                                "Use the window material instead of a solid gray background",
                             ],
                             appBackground,
                             DesktopWindowBackdrop::setAppBackground,
@@ -6655,7 +6655,7 @@ private fun DesktopSettingsScreen(
                             DesktopStrings["d_ambient_backdrop", "Ambient artwork glow"],
                             DesktopStrings[
                                 "d_ambient_backdrop_subtitle",
-                                DesktopStrings["d_ambient_backdrop_subtitle", "Diffuse current song artwork colors under the window glass"],
+                                "Diffuse current song artwork colors under the window glass",
                             ],
                             ambientBackdrop,
                             DesktopAppearanceSettings::setAmbientBackdrop,
@@ -7843,15 +7843,15 @@ private fun phraseBarsLabel(bars: Int): String = when (bars) {
 private fun phraseBarsDetail(bars: Int): String = when (bars) {
     8 -> DesktopStrings[
         "automix_phrase_8_detail",
-        DesktopStrings["d_automix_8_bars_subtitle", "Mixes over exactly 8 bars, both edges on the beat grid"],
+        "Mixes over exactly 8 bars, both edges on the beat grid",
     ]
     16 -> DesktopStrings[
         "automix_phrase_16_detail",
-        DesktopStrings["d_automix_16_bars_subtitle", "Mixes over exactly 16 bars, both edges on the beat grid"],
+        "Mixes over exactly 16 bars, both edges on the beat grid",
     ]
     else -> DesktopStrings[
         "automix_phrase_auto_detail",
-        DesktopStrings["d_automix_auto_subtitle", "Chooses each transition's length from the two tracks"],
+        "Chooses each transition's length from the two tracks",
     ]
 }
 

@@ -104,15 +104,15 @@ internal fun DesktopListenTogetherDialog(autoplayEnabled: Boolean, onDismiss: ()
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        if (state.inParty) "Everyone hears the same song at the same moment"
-                        else "Start a room or join friends with a six-character code",
+                        if (state.inParty) DesktopStrings["d_party_in_subtitle", "Everyone hears the same song at the same moment"]
+                        else DesktopStrings["d_party_out_subtitle", "Start a room or join friends with a six-character code"],
                         color = DesktopSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
                 // A page is left by the window's back, as every other page is.
                 if (!LocalDesktopPanelIsPage.current) {
-                    IconButton(onClick = onDismiss) { Icon(Icons.Rounded.Close, "Close") }
+                    IconButton(onClick = onDismiss) { Icon(Icons.Rounded.Close, DesktopStrings["d_close", "Close"]) }
                 }
             }
             if (!LocalDesktopPanelIsPage.current) HorizontalDivider(color = DesktopCardEdge)
@@ -237,8 +237,8 @@ private fun PartyLanding(
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                 PartyChoiceCard(
-                    title = "Start a party",
-                    subtitle = "Choose how friends see you and how many can join.",
+                    title = DesktopStrings["d_start_a_party", "Start a party"],
+                    subtitle = DesktopStrings["d_start_a_party_subtitle", "Choose how friends see you and how many can join."],
                     modifier = Modifier.weight(1f),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -247,7 +247,7 @@ private fun PartyLanding(
                         OutlinedTextField(
                             value = nickname,
                             onValueChange = onNicknameChange,
-                            label = { Text("Nickname") },
+                            label = { Text(DesktopStrings["d_nickname", "Nickname"]) },
                             singleLine = true,
                             modifier = Modifier.weight(1f),
                         )
@@ -255,7 +255,7 @@ private fun PartyLanding(
                     Spacer(Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("Party size", fontWeight = FontWeight.Medium)
+                            Text(DesktopStrings["d_party_size", "Party size"], fontWeight = FontWeight.Medium)
                             Text("2–10 people", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
                         }
                         Stepper("−", enabled && maxMembers > 2) { onMaxMembersChange(maxMembers - 1) }
@@ -263,18 +263,18 @@ private fun PartyLanding(
                         Stepper("+", enabled && maxMembers < 10) { onMaxMembersChange(maxMembers + 1) }
                     }
                     Spacer(Modifier.height(16.dp))
-                    PrimaryButton("Start party", busy, enabled, onCreate)
+                    PrimaryButton(DesktopStrings["d_start_party", "Start party"], busy, enabled, onCreate)
                 }
 
                 PartyChoiceCard(
-                    title = "Join a party",
-                    subtitle = "Enter the code first. You’ll see who is inside before joining.",
+                    title = DesktopStrings["d_join_a_party", "Join a party"],
+                    subtitle = DesktopStrings["d_join_a_party_subtitle", "Enter the code first. You’ll see who is inside before joining."],
                     modifier = Modifier.weight(1f),
                 ) {
                     OutlinedTextField(
                         value = code,
                         onValueChange = onCodeChange,
-                        label = { Text("Party code") },
+                        label = { Text(DesktopStrings["d_party_code", "Party code"]) },
                         placeholder = { Text("ABC123") },
                         singleLine = true,
                         textStyle = MaterialTheme.typography.headlineSmall.copy(letterSpacing = 5.sp),
@@ -282,7 +282,7 @@ private fun PartyLanding(
                     )
                     Spacer(Modifier.height(18.dp))
                     PrimaryButton(
-                        label = "Look up party",
+                        label = DesktopStrings["d_look_up_party", "Look up party"],
                         busy = busy,
                         enabled = enabled && code.length == DesktopListenTogether.CODE_LENGTH,
                         onClick = onPreview,
@@ -290,7 +290,7 @@ private fun PartyLanding(
                 }
             }
         }
-        if (!signedIn) item { Notice("Sign in to YouTube Music before creating or joining a party.", true) }
+        if (!signedIn) item { Notice(DesktopStrings["d_party_needs_sign_in", "Sign in to YouTube Music before creating or joining a party."], true) }
         error?.takeIf(String::isNotBlank)?.let { item { Notice(it, true) } }
         item {
             Column(Modifier.desktopCardInset(RoundedCornerShape(14.dp)).padding(18.dp)) {
@@ -298,8 +298,8 @@ private fun PartyLanding(
                     Icon(Icons.Rounded.Settings, null, tint = DesktopSecondary, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("Party server", fontWeight = FontWeight.Medium)
-                        Text("Leave blank to use the server included with this build.", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
+                        Text(DesktopStrings["d_party_server", "Party server"], fontWeight = FontWeight.Medium)
+                        Text(DesktopStrings["d_party_server_blank", "Leave blank to use the server included with this build."], color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -307,7 +307,7 @@ private fun PartyLanding(
                     query = server,
                     onQueryChange = onServerChange,
                     onSearch = {},
-                    placeholder = "Custom server address",
+                    placeholder = DesktopStrings["d_custom_server_address", "Custom server address"],
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -321,11 +321,11 @@ private fun PartyLanding(
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.weight(1f),
                     )
-                    TextButton(onClick = onRefreshServer) { Text("Test") }
+                    TextButton(onClick = onRefreshServer) { Text(DesktopStrings["d_test", "Test"]) }
                     Button(
                         onClick = onSaveServer,
                         colors = ButtonDefaults.buttonColors(containerColor = DesktopCardInsetFill),
-                    ) { Text(if (server.isBlank()) "Use built-in" else "Save") }
+                    ) { Text(if (server.isBlank()) DesktopStrings["d_use_built_in", "Use built-in"] else DesktopStrings["d_save", "Save"]) }
                 }
             }
         }
@@ -361,7 +361,7 @@ private fun JoinConfirmation(
         Icon(Icons.Rounded.Groups, null, tint = DesktopAccent, modifier = Modifier.size(54.dp))
         Spacer(Modifier.height(14.dp))
         Text(
-            if (preview.hostName.isBlank()) "Join this party?" else "Join ${preview.hostName}’s party?",
+            if (preview.hostName.isBlank()) DesktopStrings["d_join_this_party", "Join this party?"] else DesktopStrings.format("d_join_host_party", preview.hostName, fallback = "Join %1\$s’s party?"),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
         )
@@ -374,15 +374,15 @@ private fun JoinConfirmation(
         OutlinedTextField(
             value = nickname,
             onValueChange = onNicknameChange,
-            label = { Text("Nickname") },
+            label = { Text(DesktopStrings["d_nickname", "Nickname"]) },
             singleLine = true,
             modifier = Modifier.width(360.dp),
         )
         error?.let { Spacer(Modifier.height(10.dp)); Text(it, color = DesktopDestructive) }
         Spacer(Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            TextButton(onClick = onBack, enabled = !busy) { Text("Back") }
-            PrimaryButton("Join party", busy, !preview.isFull, onJoin, Modifier.width(190.dp))
+            TextButton(onClick = onBack, enabled = !busy) { Text(DesktopStrings["d_back", "Back"]) }
+            PrimaryButton(DesktopStrings["d_join_party", "Join party"], busy, !preview.isFull, onJoin, Modifier.width(190.dp))
         }
     }
 }
@@ -402,7 +402,7 @@ private fun PartyRoom(state: DesktopListenTogether.State, activity: List<PartyAc
             state.error?.let { item { Notice(it, true) } }
             item {
                 TextButton(onClick = onLeave, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                    Text("Leave party", color = DesktopDestructive)
+                    Text(DesktopStrings["d_leave_party", "Leave party"], color = DesktopDestructive)
                 }
             }
         }
@@ -418,7 +418,7 @@ private fun RoomHero(state: DesktopListenTogether.State) {
             Text(state.code.orEmpty(), fontSize = 30.sp, fontWeight = FontWeight.Bold, letterSpacing = 6.sp)
             Text(connectionLine(state), color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(6.dp))
-            Text("Scan from a phone or copy the invite link", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
+            Text(DesktopStrings["d_scan_or_copy_invite", "Scan from a phone or copy the invite link"], color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
         }
         DesktopQrCode(invite)
         Spacer(Modifier.width(10.dp))
@@ -426,7 +426,7 @@ private fun RoomHero(state: DesktopListenTogether.State) {
             TextButton(onClick = { DesktopExternalLinks.copy(invite) }) {
                 Icon(Icons.Rounded.ContentCopy, null, modifier = Modifier.size(17.dp))
                 Spacer(Modifier.width(7.dp))
-                Text("Copy invite")
+                Text(DesktopStrings["d_copy_invite", "Copy invite"])
             }
         }
     }
@@ -439,8 +439,8 @@ private fun NowPlayingCard(state: DesktopListenTogether.State) {
         Text("NOW PLAYING", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(10.dp))
         if (track == null) {
-            Text("Nothing playing yet", color = DesktopSecondary)
-            if (state.you?.isHost == true) Text("Play a song and it will appear for everyone.", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
+            Text(DesktopStrings["d_party_nothing_playing", "Nothing playing yet"], color = DesktopSecondary)
+            if (state.you?.isHost == true) Text(DesktopStrings["d_party_play_a_song", "Play a song and it will appear for everyone."], color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 DesktopArtwork(track.thumbnailUrl, Modifier.size(62.dp).clip(RoundedCornerShape(8.dp)), px = 160)
@@ -448,7 +448,7 @@ private fun NowPlayingCard(state: DesktopListenTogether.State) {
                 Column(Modifier.weight(1f)) {
                     Text(track.title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(track.artist, color = DesktopSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    state.playback.startedByName?.let { Text("Started by $it", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall) }
+                    state.playback.startedByName?.let { Text(DesktopStrings.format("d_started_by", it, fallback = "Started by %1\$s"), color = DesktopSecondary, style = MaterialTheme.typography.bodySmall) }
                 }
             }
         }
@@ -461,7 +461,7 @@ private fun QueueCard(state: DesktopListenTogether.State) {
         Text("UP NEXT", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(8.dp))
         val upcoming = state.queue.items.drop((state.queue.index + 1).coerceAtLeast(0)).take(5)
-        if (upcoming.isEmpty()) Text("The shared queue is empty", color = DesktopSecondary)
+        if (upcoming.isEmpty()) Text(DesktopStrings["d_shared_queue_empty", "The shared queue is empty"], color = DesktopSecondary)
         upcoming.forEachIndexed { index, track ->
             if (index > 0 && !LocalDesktopPanelIsPage.current) HorizontalDivider(color = DesktopCardEdge)
             Row(Modifier.fillMaxWidth().padding(vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -501,8 +501,8 @@ private fun HostControls(state: DesktopListenTogether.State) {
             Icon(if (state.hostOnlyControl) Icons.Rounded.Lock else Icons.Rounded.LockOpen, null, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("Only I can control playback")
-                Text("Guests can still pause on their own device.", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
+                Text(DesktopStrings["d_only_i_control", "Only I can control playback"])
+                Text(DesktopStrings["d_guests_can_pause", "Guests can still pause on their own device."], color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
             }
             Switch(state.hostOnlyControl, onCheckedChange = DesktopListenTogether::setHostOnlyControl)
         }
@@ -513,8 +513,8 @@ private fun HostControls(state: DesktopListenTogether.State) {
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Party size")
-                Text("Never removes people already inside.", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
+                Text(DesktopStrings["d_party_size", "Party size"])
+                Text(DesktopStrings["d_never_removes_people", "Never removes people already inside."], color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
             }
             Stepper("−", state.maxMembers > maxOf(2, state.members.size)) { DesktopListenTogether.setMaxMembers(state.maxMembers - 1) }
             Text("${state.maxMembers}", modifier = Modifier.width(30.dp), textAlign = TextAlign.Center)
@@ -547,15 +547,15 @@ private fun MemberRow(member: PartyMember, isYou: Boolean, canKick: Boolean, onK
         PartyAvatar(member.avatarUrl, 34, member.displayName)
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
-            Text(member.displayName.ifBlank { "Someone" } + if (isYou) " · You" else "", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(member.displayName.ifBlank { DesktopStrings["d_someone", "Someone"] } + if (isYou) " · " + DesktopStrings["d_you", "You"] else "", maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
-                when { member.isHost -> "Host"; !member.connected -> "Away"; else -> "Connected" },
+                when { member.isHost -> DesktopStrings["d_host", "Host"]; !member.connected -> DesktopStrings["d_away", "Away"]; else -> DesktopStrings["d_connected", "Connected"] },
                 color = DesktopSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
         if (canKick) IconButton(onClick = onKick, modifier = Modifier.size(30.dp)) {
-            Icon(Icons.Rounded.RemoveCircleOutline, "Remove", tint = DesktopDestructive, modifier = Modifier.size(18.dp))
+            Icon(Icons.Rounded.RemoveCircleOutline, DesktopStrings["d_remove", "Remove"], tint = DesktopDestructive, modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -615,15 +615,15 @@ private fun Notice(text: String, destructive: Boolean) {
 
 @Composable
 private fun connectionLine(state: DesktopListenTogether.State): String = when {
-    state.connection == DesktopListenTogether.Connection.CONNECTING -> "Reconnecting…"
-    state.connection == DesktopListenTogether.Connection.OFFLINE -> "Offline"
-    !state.clockSynced -> "Syncing clocks…"
-    else -> "In sync · ${state.roundTripMs} ms"
+    state.connection == DesktopListenTogether.Connection.CONNECTING -> DesktopStrings["d_reconnecting", "Reconnecting…"]
+    state.connection == DesktopListenTogether.Connection.OFFLINE -> DesktopStrings["d_offline", "Offline"]
+    !state.clockSynced -> DesktopStrings["d_syncing_clocks", "Syncing clocks…"]
+    else -> DesktopStrings.format("d_in_sync", state.roundTripMs, fallback = "In sync · %1\$d ms")
 }
 
 private fun serverStatusLine(status: DesktopListenTogether.ServerStatus): String = when {
-    status.health == DesktopListenTogether.Health.CHECKING -> "Checking the party server…"
-    status.health == DesktopListenTogether.Health.OFFLINE -> "Party server is offline"
-    status.isFallback -> "Custom server is offline · built-in server online · ${status.latencyMs} ms"
-    else -> "Party server online · ${status.latencyMs} ms"
+    status.health == DesktopListenTogether.Health.CHECKING -> DesktopStrings["d_checking_party_server", "Checking the party server…"]
+    status.health == DesktopListenTogether.Health.OFFLINE -> DesktopStrings["d_party_server_offline", "Party server is offline"]
+    status.isFallback -> DesktopStrings.format("d_party_server_fallback", status.latencyMs, fallback = "Custom server is offline · built-in server online · %1\$d ms")
+    else -> DesktopStrings.format("d_party_server_online", status.latencyMs, fallback = "Party server online · %1\$d ms")
 }

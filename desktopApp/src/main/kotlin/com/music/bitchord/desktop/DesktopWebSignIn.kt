@@ -33,13 +33,13 @@ internal object DesktopWebSignIn {
 
     enum class Service(val title: String, val startUrl: String, val cookieUrl: String) {
         YOUTUBE_MUSIC(
-            "Sign in to YouTube Music",
+            DesktopStrings["d_sign_in_to_youtube_music", "Sign in to YouTube Music"],
             "https://accounts.google.com/ServiceLogin?ltmpl=music&service=youtube&passive=true" +
                 "&continue=https%3A%2F%2Fmusic.youtube.com%2F",
             "https://music.youtube.com/",
         ),
         SPOTIFY(
-            "Sign in to Spotify",
+            DesktopStrings["d_sign_in_to_spotify", "Sign in to Spotify"],
             "https://accounts.spotify.com/login?continue=https%3A%2F%2Fopen.spotify.com%2F",
             "https://open.spotify.com/",
         ),
@@ -90,7 +90,7 @@ internal object DesktopWebSignIn {
     ) {
         private val stage = Stage()
         private val root = BorderPane()
-        private val confirm = Button("Use this profile")
+        private val confirm = Button(DesktopStrings["d_use_this_profile", "Use this profile"])
         // The page's host, since the window has no address bar to show it.
         private val where = Label().apply { style = "-fx-text-fill: #aaaaaa;" }
         private var view: WebView? = null
@@ -100,7 +100,7 @@ internal object DesktopWebSignIn {
 
         init {
             stage.title = service.title
-            val startOver = Button("Start over").apply { setOnAction { load() } }
+            val startOver = Button(DesktopStrings["d_start_over", "Start over"]).apply { setOnAction { load() } }
             val bar = HBox(8.0, startOver, Region().also { HBox.setHgrow(it, Priority.ALWAYS) }, where)
             bar.padding = Insets(8.0)
             if (service == Service.YOUTUBE_MUSIC) {
