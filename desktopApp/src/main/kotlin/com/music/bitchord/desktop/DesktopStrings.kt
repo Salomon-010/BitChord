@@ -47,6 +47,10 @@ object DesktopStrings {
     /** The stored choice: a tag, or blank for the system's own language. */
     val language: StateFlow<String> = _language
 
+    // Sigui: before init. The catalogue loaded there unescapes with it, and a property declared
+    // below init is still null at that point, which left every language but English empty at start.
+    private val UNICODE_ESCAPE = Regex("""\\u([0-9a-fA-F]{4})""")
+
     init {
         current = catalogue(resolvedTag())
     }
@@ -126,7 +130,8 @@ object DesktopStrings {
                 put(name, unescape(node.textContent.orEmpty()))
             }
         }
-    }.getOrDefault(emptyMap())
+    }.onFailure { System.err.println("Sigui: strings/$tag.xml could not be read, English is used instead: $it") } // Sigui: no longer silent
+        .getOrDefault(emptyMap())
 
     /**
      * A catalogue value as the UI should read it.
@@ -139,8 +144,6 @@ object DesktopStrings {
         val decoded = UNICODE_ESCAPE.replace(raw) { it.groupValues[1].toInt(16).toChar().toString() }
         return decoded.replace("\\'", "'").replace("\\\"", "\"").replace("\\n", "\n")
     }
-
-    private val UNICODE_ESCAPE = Regex("""\\u([0-9a-fA-F]{4})""")
 
     internal const val KEY_LANGUAGE = "app_language"
 }
