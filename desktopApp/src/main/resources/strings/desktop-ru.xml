@@ -89,4 +89,7 @@
     <string name="d_translation_unavailable">Перевод недоступен</string>
     <string name="d_what_the_translate_button_translates_into">На какой язык кнопка перевода переводит текст песни</string>
     <string name="d_off">Выключено</string>
+    <string name="d_quality_compressed">Сжатый</string>
+    <string name="d_quality_bits">%1$d бит</string>
+    <string name="d_quality">Качество</string>
 </resources>

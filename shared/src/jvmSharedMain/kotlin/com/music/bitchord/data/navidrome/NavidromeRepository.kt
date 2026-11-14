@@ -189,6 +189,7 @@ object NavidromeRepository {
         NavidromeAlbums.remember(album, albumId) // so its album page opens with one request
         NavidromeArtistInfo.remember(this) // so its artists' radio and similar artists need no search for the id
         sizeBytes?.let { NavidromePlatform.kept.noteSize(id, it) } // so "Available offline" can say how much a page takes
+        NavidromeAudioFormats.remember(this) // Sigui: format, depth, rate and bitrate for the quality badge
         val lossless = suffix?.lowercase() in LOSSLESS_SUFFIXES
         val artistName = artist ?: "Unknown Artist"
         return Song(

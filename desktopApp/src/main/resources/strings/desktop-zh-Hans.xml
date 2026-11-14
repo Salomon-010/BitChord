@@ -89,4 +89,7 @@
     <string name="d_translation_unavailable">无法翻译</string>
     <string name="d_what_the_translate_button_translates_into">歌词翻译按钮翻译成的语言</string>
     <string name="d_off">关闭</string>
+    <string name="d_quality_compressed">压缩</string>
+    <string name="d_quality_bits">%1$d 位</string>
+    <string name="d_quality">音质</string>
 </resources>

@@ -65,6 +65,8 @@ class NavidromeClient(
         val artists: List<Pair<String, String>> = emptyList(),
         /** The server's ReplayGain in dB (OpenSubsonic `replayGain`, track else album), see [NavidromeReplayGain]. */
         val replayGainDb: Double? = null,
+        /** Sigui: the file's bitrate in kbps (Subsonic `bitRate`), for the quality badge (NavidromeAudioFormats). */
+        val bitRate: Int? = null,
     )
 
     suspend fun ping() {
@@ -524,6 +526,7 @@ class NavidromeClient(
             artistId = o.string("artistId"),
             artists = parseArtists(o["artists"]).map { it.id to it.name },
             replayGainDb = NavidromeReplayGain.parse(o["replayGain"]).also { NavidromeReplayGain.remember(id, it) },
+            bitRate = o.int("bitRate"),
         )
     }
 

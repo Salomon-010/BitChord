@@ -4760,13 +4760,27 @@ private fun DesktopTopBar(
                                                 style = MaterialTheme.typography.labelLarge,
                                                 fontWeight = FontWeight.SemiBold,
                                             )
-                                            Text(
-                                                forkTopBarCredits(song, forkLinks), // fork: each credited artist opens their page
-                                                color = DesktopSecondary,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                                style = MaterialTheme.typography.labelSmall,
-                                            )
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    forkTopBarCredits(song, forkLinks), // fork: each credited artist opens their page
+                                                    modifier = Modifier.weight(1f, fill = false),
+                                                    color = DesktopSecondary,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                )
+                                                // Sigui: the Navidrome file's quality and its detail; the credits give way first.
+                                                DesktopFileQuality.remember(song)?.let { quality ->
+                                                    DesktopAudioQualityBadge(quality, Modifier.padding(start = 6.dp))
+                                                    Text(
+                                                        DesktopFileQuality.detail(quality),
+                                                        modifier = Modifier.padding(start = 5.dp),
+                                                        color = DesktopSecondary,
+                                                        maxLines = 1,
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                     // Drawn rather than sized: through a blend the line covers

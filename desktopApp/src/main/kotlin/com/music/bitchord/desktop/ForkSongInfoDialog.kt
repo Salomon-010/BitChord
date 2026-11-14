@@ -43,7 +43,9 @@ import androidx.compose.ui.window.PopupProperties
 import com.music.bitchord.data.SongInfo
 import com.music.bitchord.data.SongInfoRepository
 import com.music.bitchord.data.compactCount
+import com.music.bitchord.data.model.AudioQualityInfo
 import com.music.bitchord.data.model.Song
+import com.music.bitchord.data.navidrome.NavidromeAudioFormats
 import com.music.bitchord.data.navidrome.NavidromeRadio
 
 /**
@@ -158,6 +160,15 @@ private fun ForkSongInfoPanel(song: Song, onDismiss: () -> Unit) {
                 if (index > 0) DesktopCardRule(Modifier.padding(start = 22.dp))
                 InfoRow(label, value ?: unavailable.takeIf { info != null })
             }
+            if (ForkNavidrome.owns(song)) {
+                // Sigui: what the server says of the file (DesktopFileQuality); offline, only what is already known.
+                val quality by produceState<Pair<AudioQualityInfo?, Boolean>>(null to false, song) {
+                    value = (NavidromeAudioFormats.quality(song)
+                        ?: if (ForkOffline.offline.value) null else NavidromeAudioFormats.loadQuality(song)) to true
+                }
+                DesktopCardRule(Modifier.padding(start = 22.dp))
+                QualityRow(quality.first, loaded = quality.second, unavailable = unavailable)
+            }
             if (info?.failed == true) {
                 Text(
                     DesktopStrings["song_info_error", "Some information could not be loaded."],
@@ -180,6 +191,32 @@ private fun ForkSongInfoPanel(song: Song, onDismiss: () -> Unit) {
                 }
             }
             TextButton(onClick = onDismiss) { Text(DesktopStrings["done", "Done"], color = DesktopAccent) }
+        }
+    }
+}
+
+/** Sigui: "Quality", then the badge over its detail line ("FLAC · 24 bits · 96 kHz"). */
+@Composable
+private fun QualityRow(info: AudioQualityInfo?, loaded: Boolean, unavailable: String) {
+    if (info == null) {
+        InfoRow(DesktopStrings["d_quality", "Quality"], unavailable.takeIf { loaded })
+        return
+    }
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(horizontal = 22.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(DesktopStrings["d_quality", "Quality"], style = MaterialTheme.typography.bodyMedium, color = DesktopSecondary)
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+            DesktopAudioQualityBadge(info)
+            Text(
+                DesktopFileQuality.detail(info),
+                modifier = Modifier.padding(top = 4.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.End,
+            )
         }
     }
 }
