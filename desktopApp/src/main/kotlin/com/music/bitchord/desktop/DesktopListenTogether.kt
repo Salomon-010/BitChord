@@ -181,7 +181,7 @@ internal object DesktopListenTogether {
                 }
             }
         }
-        refreshServerHealth()
+        // Sigui: no /healthz at startup; the party screen asks when it opens (DesktopListenTogetherDialog).
     }
 
     fun setCustomServerUrl(value: String): Result<Unit> = runCatching {

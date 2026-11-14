@@ -85,6 +85,12 @@ internal fun DesktopListenTogetherDialog(autoplayEnabled: Boolean, onDismiss: ()
         if (serverDraft == server || serverDraft.isBlank()) serverDraft = server
     }
 
+    // Sigui: the party server is only checked when this screen opens, not at startup.
+    // In a party the live socket already proves it is reachable.
+    LaunchedEffect(Unit) {
+        if (!DesktopListenTogether.state.value.inParty) DesktopListenTogether.refreshServerHealth()
+    }
+
     DesktopDialogPanel(onDismiss = onDismiss, maxWidth = 920) {
         Column(desktopPanelBody(cardMax = 760.dp, cardMin = 560.dp, fill = true)) {
             Row(
