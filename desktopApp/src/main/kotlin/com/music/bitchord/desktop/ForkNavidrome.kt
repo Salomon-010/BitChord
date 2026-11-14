@@ -98,8 +98,13 @@ internal object ForkNavidrome {
         settings.putStrings(mapOf(KEY_COVERS to if (on) "on" else "off"))
     }
 
-    fun install() {
+    /** The saved login alone, without the rest of [install]: what a check run outside the app needs (ForkLosslessCheckLiveTest). */
+    fun installLogin() {
         NavidromeSettings.init(PrefsStore("com/music/bitchord/navidrome", sealed = setOf("password")))
+    }
+
+    fun install() {
+        installLogin()
         NavidromePlatform.onKeptRow = { ForkLibraryPlaylists.offline.value = it } // the Library's "Available offline" row; before the kept pages load
         ForkOffline.install() // before the clips: its files answer them
         NavidromeClips.init(PrefsStore("com/music/bitchord/navidrome_clips", sealed = emptySet()))
