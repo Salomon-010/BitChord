@@ -173,8 +173,8 @@ internal class ForkFilePreferences private constructor(
         }
 
         /**
-         * Set by the exit hook. Shutdown hooks run side by side, and the app's own (DesktopPresence,
-         * DesktopWindowsMedia, ...) may still put a value after this one has written everything; the
+         * Set by the exit hook. Shutdown hooks run side by side, and the app's own (DesktopWindowsMedia,
+         * ...) may still put a value after this one has written everything; the
          * timer is a daemon thread that never runs again, so from then on a change is written by
          * the thread that makes it, as the registry did with every put.
          */
