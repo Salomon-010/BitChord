@@ -89,23 +89,24 @@ internal fun ForkNavidromeSettingsGroup() {
         // Every row rides on the server: greyed (never hidden) while none is set up, as on the phone
         // (the owner's rule for dependent rows).
         ForkDisabledWhen(!com.music.bitchord.data.navidrome.NavidromeSettings.isConfigured(url, user)) {
+            // Sigui: every text below through the catalogue, the English as its fallback.
             SettingsToggle(
-                "Report plays to Navidrome",
-                "Your server shows what is playing, and counts songs played to the end",
+                DesktopStrings["d_nav_report_plays", "Report plays to Navidrome"],
+                DesktopStrings["d_nav_report_plays_sub", "Your server shows what is playing, and counts songs played to the end"],
                 scrobble,
                 ForkNavidromeSettings::setScrobble,
             )
             SettingsToggle(
-                "Navidrome on Home",
-                "Your server's albums and playlists above YouTube's feed",
+                DesktopStrings["d_nav_on_home", "Navidrome on Home"],
+                DesktopStrings["d_nav_on_home_sub", "Your server's albums and playlists above YouTube's feed"],
                 homeShelves,
                 ForkNavidromeSettings::setHomeShelves,
             )
             // The phone's row, after "Navidrome on Home"; the same switch as the Navidrome page's.
             val history by ForkYouTubeHistory.enabled.collectAsState()
             SettingsToggle(
-                "Navidrome plays in YouTube history",
-                "Songs you play from your server count on YouTube Music too (signed in), so its recommendations learn from them",
+                DesktopStrings["d_nav_youtube_history", "Navidrome plays in YouTube history"],
+                DesktopStrings["d_nav_youtube_history_sub", "Songs you play from your server count on YouTube Music too (signed in), so its recommendations learn from them"],
                 history,
                 ForkNavidrome::setYouTubeHistory,
             )
@@ -114,9 +115,12 @@ internal fun ForkNavidromeSettingsGroup() {
             val choices = ForkNavidromeSettings.PRELOAD_CHOICES
             SettingsRow(
                 Icons.Rounded.FastForward,
-                "Pre-load next songs",
-                "Loads the next Navidrome songs in the queue to disk while one plays, so they start at once and keep playing if the network drops: " +
-                    if (preload == 0) "Off" else "next $preload",
+                DesktopStrings["d_nav_preload", "Pre-load next songs"],
+                DesktopStrings.format(
+                    "d_nav_preload_sub",
+                    if (preload == 0) DesktopStrings["d_off", "Off"] else DesktopStrings.format("d_nav_preload_next", preload, fallback = "next %1\$d"),
+                    fallback = "Loads the next Navidrome songs in the queue to disk while one plays, so they start at once and keep playing if the network drops: %1\$s",
+                ),
             ) { ForkNavidromeSettings.setPreloadSongs(choices[(choices.indexOf(preload) + 1) % choices.size]) }
             val handoff by ForkHandoffDesktop.enabled.collectAsState()
             SettingsToggle(ForkHandoffDesktop.SETTING_TITLE, ForkHandoffDesktop.SETTING_SUBTITLE, handoff, ForkHandoffDesktop::setEnabled)

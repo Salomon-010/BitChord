@@ -70,8 +70,9 @@ import kotlinx.serialization.json.put
  */
 internal object ForkHandoffDesktop {
 
-    const val SETTING_TITLE = "Continue on other devices"
-    const val SETTING_SUBTITLE = "Leaves your queue on your Navidrome server when you pause or hide the window, so the phone can pick it up at the same song and second"
+    // Sigui: getters through the catalogue, so Settings shows them in the app's language.
+    val SETTING_TITLE: String get() = DesktopStrings["d_handoff_title", "Continue on other devices"]
+    val SETTING_SUBTITLE: String get() = DesktopStrings["d_handoff_subtitle", "Leaves your queue on your Navidrome server when you pause or hide the window, so the phone can pick it up at the same song and second"]
     const val MENU_TITLE = "Continue from other device"
 
     private const val KEY_ENABLED = "enabled"

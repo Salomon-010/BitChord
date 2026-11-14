@@ -101,4 +101,17 @@
     <!-- Sigui: the narrow window's floating navigation and the Navidrome home shelf -->
     <string name="d_floating_play">Écouter</string>
     <string name="d_recently_added">Ajouts récents</string>
+    <!-- Sigui: the Navidrome group of Settings, and the search box above Settings -->
+    <string name="settings_search_hint">Rechercher dans les paramètres</string>
+    <string name="d_nav_report_plays">Signaler les écoutes à Navidrome</string>
+    <string name="d_nav_report_plays_sub">Votre serveur affiche ce qui est en lecture et compte les titres écoutés jusqu’au bout</string>
+    <string name="d_nav_on_home">Navidrome sur l’accueil</string>
+    <string name="d_nav_on_home_sub">Les albums et playlists de votre serveur au-dessus du fil YouTube</string>
+    <string name="d_nav_youtube_history">Écoutes Navidrome dans l’historique YouTube</string>
+    <string name="d_nav_youtube_history_sub">Les titres lus depuis votre serveur comptent aussi sur YouTube Music (si vous êtes connecté), pour que ses recommandations en tiennent compte</string>
+    <string name="d_nav_preload">Précharger les titres suivants</string>
+    <string name="d_nav_preload_sub">Enregistre sur le disque les prochains titres Navidrome de la file pendant la lecture, pour qu’ils démarrent aussitôt et continuent si le réseau coupe : %1$s</string>
+    <string name="d_nav_preload_next">les %1$d suivants</string>
+    <string name="d_handoff_title">Continuer sur d’autres appareils</string>
+    <string name="d_handoff_subtitle">Laisse votre file d’attente sur votre serveur Navidrome quand vous mettez en pause ou masquez la fenêtre, pour que le téléphone la reprenne au même titre et à la même seconde</string>
 </resources>
