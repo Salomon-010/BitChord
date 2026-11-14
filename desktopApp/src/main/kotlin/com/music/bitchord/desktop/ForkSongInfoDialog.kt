@@ -44,6 +44,9 @@ import com.music.bitchord.data.SongInfo
 import com.music.bitchord.data.SongInfoRepository
 import com.music.bitchord.data.compactCount
 import com.music.bitchord.data.model.AudioQualityInfo
+import com.music.bitchord.data.model.AudioQualityTier
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
 import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.navidrome.NavidromeAudioFormats
 import com.music.bitchord.data.navidrome.NavidromeRadio
@@ -166,8 +169,19 @@ private fun ForkSongInfoPanel(song: Song, onDismiss: () -> Unit) {
                     value = (NavidromeAudioFormats.quality(song)
                         ?: if (ForkOffline.offline.value) null else NavidromeAudioFormats.loadQuality(song)) to true
                 }
+                // Is the lossless file really lossless (ForkLosslessCheck)? Only for a lossless file, and
+                // interruptible, so closing the dialog stops the decode; the cache answers a second look at once.
+                val lossless = quality.first?.tier?.let { it != AudioQualityTier.COMPRESSED } == true
+                // "Analysing…" while it runs (a cached verdict replaces it at once), then the verdict's line, or nothing.
+                val authenticity by produceState<ForkLosslessLine?>(null, song, lossless) {
+                    value = null
+                    if (lossless && !ForkOffline.offline.value) {
+                        value = ForkLosslessLine.analysing()
+                        value = runInterruptible(Dispatchers.IO) { ForkLosslessCheck.checkServerSong(song) }?.songInfoLine()
+                    }
+                }
                 DesktopCardRule(Modifier.padding(start = 22.dp))
-                QualityRow(quality.first, loaded = quality.second, unavailable = unavailable)
+                QualityRow(quality.first, loaded = quality.second, unavailable = unavailable, authenticity = authenticity)
             }
             if (info?.failed == true) {
                 Text(
@@ -195,9 +209,15 @@ private fun ForkSongInfoPanel(song: Song, onDismiss: () -> Unit) {
     }
 }
 
-/** Sigui: "Quality", then the badge over its detail line ("FLAC · 24 bits · 96 kHz"). */
+/** Sigui: a suspect lossless file's line, in the system's orange: a warning, not an error. */
+private val ForkLosslessSuspect = Color(0xFFFF9F0A)
+
+/**
+ * Sigui: "Quality", then the badge over its detail line ("FLAC · 24 bits · 96 kHz"), and under
+ * them what [ForkLosslessCheck] made of the file: "Genuine" quietly, a suspicion in orange.
+ */
 @Composable
-private fun QualityRow(info: AudioQualityInfo?, loaded: Boolean, unavailable: String) {
+private fun QualityRow(info: AudioQualityInfo?, loaded: Boolean, unavailable: String, authenticity: ForkLosslessLine? = null) {
     if (info == null) {
         InfoRow(DesktopStrings["d_quality", "Quality"], unavailable.takeIf { loaded })
         return
@@ -217,6 +237,17 @@ private fun QualityRow(info: AudioQualityInfo?, loaded: Boolean, unavailable: St
                 color = Color.White,
                 textAlign = TextAlign.End,
             )
+            if (authenticity != null) {
+                val suspect = authenticity.tone == ForkLosslessTone.Suspect
+                Text(
+                    authenticity.text,
+                    modifier = Modifier.padding(top = 4.dp),
+                    style = if (suspect) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
+                    color = if (suspect) ForkLosslessSuspect else DesktopSecondary,
+                    fontWeight = if (suspect) FontWeight.Medium else null,
+                    textAlign = TextAlign.End,
+                )
+            }
         }
     }
 }

@@ -105,6 +105,63 @@ class ForkLosslessCheckTest {
         assertNull(ForkLosslessCache(file.toPath()).get("song-1", 5))
     }
 
+    private fun verdict(
+        kind: AuthenticityKind,
+        source: LossySource? = null,
+        kbps: Int? = null,
+        declared: Int = 16,
+        effective: Int? = 16,
+    ) = AuthenticityVerdict(
+        kind = kind, confidence = 1.0, cutoffHz = null, lossySource = source, estimatedKbps = kbps,
+        declaredBits = declared, effectiveBits = effective, sampleRate = 44_100, excerpts = emptyList(),
+    )
+
+    @Test
+    fun `Song info says genuine quietly and every suspicion in its own words`() {
+        assertEquals(ForkLosslessLine("Genuine", ForkLosslessTone.Quiet), verdict(AuthenticityKind.Genuine).songInfoLine())
+        assertEquals(
+            ForkLosslessLine("Suspect: made from an MP3 (~128 kbps)", ForkLosslessTone.Suspect),
+            verdict(AuthenticityKind.LossyTranscode, LossySource.Mp3, kbps = 128).songInfoLine(),
+        )
+        assertEquals(
+            "Suspect: made from a compressed format",
+            verdict(AuthenticityKind.LossyTranscode, LossySource.Compressed).songInfoLine()?.text,
+        )
+        assertEquals(
+            "Suspect: 24 bits declared, 16 bits used",
+            verdict(AuthenticityKind.PaddedBitDepth, declared = 24, effective = 16).songInfoLine()?.text,
+        )
+        assertEquals("Suspect: upsampled", verdict(AuthenticityKind.Upsampled).songInfoLine()?.text)
+        assertEquals(ForkLosslessTone.Suspect, verdict(AuthenticityKind.Upsampled).songInfoLine()?.tone)
+    }
+
+    @Test
+    fun `an inconclusive verdict shows nothing`() {
+        assertNull(verdict(AuthenticityKind.Inconclusive).songInfoLine())
+    }
+
+    @Test
+    fun `while the check runs Song info says so quietly`() {
+        assertEquals(ForkLosslessLine("Analysing…", ForkLosslessTone.Quiet), ForkLosslessLine.analysing())
+    }
+
+    /** The French catalogue has every line, French punctuation included (a space before the colon). */
+    @Test
+    fun `Song info's lines are in French`() {
+        val french = assertNotNull(javaClass.getResourceAsStream("/strings/desktop-fr.xml")).use { it.readBytes().decodeToString() }
+        val expected = mapOf(
+            "lossless_check_genuine" to "Authentique",
+            "lossless_check_from_mp3" to "Suspect : issu d’un MP3 (~%1\$d kbps)",
+            "lossless_check_from_compressed" to "Suspect : issu d’un format compressé",
+            "lossless_check_padded" to "Suspect : %1\$d bits annoncés, %2\$d bits effectifs",
+            "lossless_check_upsampled" to "Suspect : suréchantillonné",
+            "lossless_check_running" to "Analyse…",
+        )
+        expected.forEach { (key, text) ->
+            assertTrue("<string name=\"$key\">$text</string>" in french, "$key in desktop-fr.xml")
+        }
+    }
+
     /** Left counts up by one per frame (wrapping as [wav] wraps it), right is its negative, each shifted left by [shift]. */
     private fun assertCounts(samples: IntArray, channels: Int, shift: Int, bits: Int = 24) {
         val wrap = wrapFor(bits, shift)

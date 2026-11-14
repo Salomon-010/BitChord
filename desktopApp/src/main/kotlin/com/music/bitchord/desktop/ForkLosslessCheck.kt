@@ -20,7 +20,7 @@ import java.nio.file.StandardCopyOption
  * [DesktopAudioDecoder] as S32 at the file's own rate and channel count, so no downmix, resample
  * or float conversion touches the low bits; the verdict kept per song id and file size.
  *
- * Blocking (network and decode): call it off the UI thread. No UI uses it yet.
+ * Blocking (network and decode): call it off the UI thread. Song info shows it ([songInfoLine]).
  */
 internal object ForkLosslessCheck {
 
@@ -37,6 +37,17 @@ internal object ForkLosslessCheck {
 
     val cache: ForkLosslessCache by lazy {
         ForkLosslessCache(DesktopMediaCache.directory.resolve("lossless_check").resolve("verdicts.json"))
+    }
+
+    /**
+     * Song info's check of the server song [song]: its file size asked of the server (the cache
+     * key), then [check]. Null offline, for anything not on the server, or when it can't be read.
+     */
+    fun checkServerSong(song: com.music.bitchord.data.model.Song): AuthenticityVerdict? {
+        if (!ForkNavidrome.owns(song) || ForkOffline.offline.value) return null
+        val id = song.videoId.removePrefix(com.music.bitchord.data.navidrome.NavidromeSettings.ID_PREFIX)
+        val size = runCatching { kotlinx.coroutines.runBlocking { NavidromeRepository.client().song(id) }?.sizeBytes }.getOrNull()
+        return runCatching { check(id, size) }.getOrNull()?.verdict
     }
 
     /**
@@ -133,6 +144,42 @@ internal object ForkLosslessCheck {
         }
         return out
     }
+}
+
+/** Fork: how Song info draws a [ForkLosslessLine]: [Quiet] for a genuine file, [Suspect] for anything found. */
+internal enum class ForkLosslessTone { Quiet, Suspect }
+
+/** Fork: Song info's line under "Quality" for a [AuthenticityVerdict]. */
+internal data class ForkLosslessLine(val text: String, val tone: ForkLosslessTone) {
+    companion object {
+        /** What the line says while the check runs (the first look at a file takes a few seconds). */
+        fun analysing() = ForkLosslessLine(DesktopStrings["lossless_check_running", "Analysing…"], ForkLosslessTone.Quiet)
+    }
+}
+
+/**
+ * Fork: the line Song info shows for this verdict, or null to show nothing (inconclusive). The
+ * English is the fallback; the French is in `desktop-fr.xml`.
+ */
+internal fun AuthenticityVerdict.songInfoLine(): ForkLosslessLine? = when (kind) {
+    AuthenticityKind.Genuine -> ForkLosslessLine(DesktopStrings["lossless_check_genuine", "Genuine"], ForkLosslessTone.Quiet)
+    AuthenticityKind.LossyTranscode -> {
+        val kbps = estimatedKbps
+        val text = if (lossySource == LossySource.Mp3 && kbps != null) {
+            DesktopStrings.format("lossless_check_from_mp3", kbps, fallback = "Suspect: made from an MP3 (~%1\$d kbps)")
+        } else {
+            DesktopStrings["lossless_check_from_compressed", "Suspect: made from a compressed format"]
+        }
+        ForkLosslessLine(text, ForkLosslessTone.Suspect)
+    }
+    AuthenticityKind.PaddedBitDepth -> effectiveBits?.let { used ->
+        ForkLosslessLine(
+            DesktopStrings.format("lossless_check_padded", declaredBits, used, fallback = "Suspect: %1\$d bits declared, %2\$d bits used"),
+            ForkLosslessTone.Suspect,
+        )
+    }
+    AuthenticityKind.Upsampled -> ForkLosslessLine(DesktopStrings["lossless_check_upsampled", "Suspect: upsampled"], ForkLosslessTone.Suspect)
+    AuthenticityKind.Inconclusive -> null
 }
 
 /**

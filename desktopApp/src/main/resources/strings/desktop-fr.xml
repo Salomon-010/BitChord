@@ -268,6 +268,12 @@
     <string name="hide_top_picks">Masquer « Top Picks for You »</string>
     <string name="lastfm_api_key">Clé API</string>
     <string name="lastfm_shared_secret">Secret partagé</string>
+    <string name="lossless_check_from_compressed">Suspect : issu d’un format compressé</string>
+    <string name="lossless_check_from_mp3">Suspect : issu d’un MP3 (~%1$d kbps)</string>
+    <string name="lossless_check_genuine">Authentique</string>
+    <string name="lossless_check_padded">Suspect : %1$d bits annoncés, %2$d bits effectifs</string>
+    <string name="lossless_check_running">Analyse…</string>
+    <string name="lossless_check_upsampled">Suspect : suréchantillonné</string>
     <string name="lyrics">Paroles</string>
     <string name="lyrics_share_description">Les lignes choisies, mises en page sur une carte avec la pochette.</string>
     <string name="lyrics_share_story">En faire une story</string>
