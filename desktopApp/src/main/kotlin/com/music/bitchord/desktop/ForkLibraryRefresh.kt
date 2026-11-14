@@ -155,7 +155,7 @@ internal fun ForkSidebarPlaylistsRefresh() {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "YT Playlists", // owner 2026-11-06: says whose playlists these are (YouTube's, not Navidrome's)
+            DesktopStrings["d_yt_playlists", "YT Playlists"], // owner 2026-11-06: says whose playlists these are (YouTube's, not Navidrome's)
             Modifier.weight(1f),
             color = DesktopSecondary.copy(alpha = 0.68f),
             style = androidx.compose.material3.MaterialTheme.typography.labelMedium,

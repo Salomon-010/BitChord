@@ -4957,13 +4957,13 @@ private fun DesktopSidebar(
             DesktopSidebarItem(BitChordIcons.Home, DesktopStrings["home", "Home"], destination == DesktopDestination.LISTEN_NOW) {
                 onDestinationSelected(DesktopDestination.LISTEN_NOW)
             }
-            DesktopSidebarItem(BitChordIcons.Explore, "Explore", destination == DesktopDestination.EXPLORE) {
+            DesktopSidebarItem(BitChordIcons.Explore, DesktopStrings["explore", "Explore"], destination == DesktopDestination.EXPLORE) {
                 onDestinationSelected(DesktopDestination.EXPLORE)
             }
-            DesktopSidebarItem(BitChordIcons.Library, "Library", destination == DesktopDestination.LIBRARY) {
+            DesktopSidebarItem(BitChordIcons.Library, DesktopStrings["library", "Library"], destination == DesktopDestination.LIBRARY) {
                 onDestinationSelected(DesktopDestination.LIBRARY)
             }
-            DesktopSidebarItem(BitChordIcons.Search, "Search", destination == DesktopDestination.SEARCH) {
+            DesktopSidebarItem(BitChordIcons.Search, DesktopStrings["search", "Search"], destination == DesktopDestination.SEARCH) {
                 onDestinationSelected(DesktopDestination.SEARCH)
             }
             Spacer(Modifier.height(6.dp))
@@ -4972,29 +4972,29 @@ private fun DesktopSidebar(
             if (HISTORY_KEY !in hiddenSidebar) {
                 DesktopSidebarItem(
                     BitChordIcons.Clock,
-                    "History",
+                    DesktopStrings["history", "History"],
                     destination == DesktopDestination.HISTORY,
                     onClick = { onDestinationSelected(DesktopDestination.HISTORY) },
-                    onHide = { DesktopSidebarVisibility.hide(HISTORY_KEY, "History") },
+                    onHide = { DesktopSidebarVisibility.hide(HISTORY_KEY, DesktopStrings["history", "History"]) },
                 )
             }
             val queued by DesktopDownloadQueue.active.collectAsState()
             if (DOWNLOADS_KEY !in hiddenSidebar) {
                 DesktopSidebarItem(
                     BitChordIcons.Download,
-                    if (queued.isEmpty()) "Downloads" else "Downloads · ${queued.size}",
+                    DesktopStrings["downloads", "Downloads"].let { if (queued.isEmpty()) it else "$it · ${queued.size}" },
                     destination == DesktopDestination.DOWNLOADS,
                     onClick = { onDestinationSelected(DesktopDestination.DOWNLOADS) },
-                    onHide = { DesktopSidebarVisibility.hide(DOWNLOADS_KEY, "Downloads") },
+                    onHide = { DesktopSidebarVisibility.hide(DOWNLOADS_KEY, DesktopStrings["downloads", "Downloads"]) },
                 )
             }
             if (LOCAL_MUSIC_KEY !in hiddenSidebar) {
                 DesktopSidebarItem(
                     BitChordIcons.Library,
-                    "Local Music",
+                    DesktopStrings["local_music", "Local Music"],
                     destination == DesktopDestination.LOCAL_MUSIC,
                     onClick = { onDestinationSelected(DesktopDestination.LOCAL_MUSIC) },
-                    onHide = { DesktopSidebarVisibility.hide(LOCAL_MUSIC_KEY, "Local Music") },
+                    onHide = { DesktopSidebarVisibility.hide(LOCAL_MUSIC_KEY, DesktopStrings["local_music", "Local Music"]) },
                 )
             }
             if (NAVIDROME_KEY !in hiddenSidebar) { // fork
@@ -5039,7 +5039,7 @@ private fun DesktopSidebar(
                 if (visibleAccount.isEmpty() && visibleLocal.isEmpty()) {
                     item {
                         Text(
-                            "Your playlists will appear here",
+                            DesktopStrings["d_your_playlists_will_appear_here", "Your playlists will appear here"],
                             modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
                             color = DesktopSecondary.copy(alpha = 0.68f),
                             style = MaterialTheme.typography.bodySmall,
@@ -5052,7 +5052,7 @@ private fun DesktopSidebar(
             if (hiddenSidebar.isNotEmpty()) {
                 DesktopSidebarRestoreRow(hiddenSidebar)
             }
-            DesktopSidebarItem(Icons.Rounded.Settings, "Settings", settingsOpen) {
+            DesktopSidebarItem(Icons.Rounded.Settings, DesktopStrings["settings", "Settings"], settingsOpen) {
                 onOpenSettings()
             }
         }
@@ -5310,7 +5310,7 @@ internal fun DesktopSearchField(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester = remember { FocusRequester() },
     onFocusChanged: (Boolean) -> Unit = {},
-    placeholder: String = "Search",
+    placeholder: String = DesktopStrings["search", "Search"],
 ) {
     val searchShape = RoundedCornerShape(7.dp)
     Box(

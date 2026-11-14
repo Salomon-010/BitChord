@@ -92,4 +92,10 @@
     <string name="d_quality_compressed">Compressé</string>
     <string name="d_quality_bits">%1$d bits</string>
     <string name="d_quality">Qualité</string>
+    <!-- Sigui: the sidebar, in French (the English stays in the code as each call's fallback) -->
+    <string name="home">Accueil</string>
+    <string name="hide_from_sidebar">Masquer de la barre latérale</string>
+    <string name="n_hidden">Masqués : %1$d</string>
+    <string name="d_your_playlists_will_appear_here">Vos playlists apparaîtront ici</string>
+    <string name="d_yt_playlists">Playlists YT</string>
 </resources>
