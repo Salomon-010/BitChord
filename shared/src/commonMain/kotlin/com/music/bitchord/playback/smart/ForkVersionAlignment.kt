@@ -1,10 +1,8 @@
 package com.music.bitchord.playback.smart
 
-import kotlin.math.PI
-import kotlin.math.cos
+import com.music.bitchord.audio.Fft
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -14,7 +12,8 @@ import kotlin.math.sqrt
  * normalisation, a 0.40 confidence floor, a peak pinned to the search edge refused). There it is
  * private to the Android aligner, which also opens the phone's cache; here it is plain Kotlin so the
  * desktop can feed it the two openings it decodes. The phone keeps its own copy (no upstream file
- * edited); a change to the phone's maths is a change to make here too.
+ * edited); a change to the phone's maths is a change to make here too. Its FFT, the same code, is
+ * now [Fft], shared with the lossless-authenticity probe.
  */
 object ForkVersionAlignment {
 
@@ -171,8 +170,8 @@ object ForkVersionAlignment {
         val tgtIm = DoubleArray(fftLen)
         for (i in 0 until m) tgtRe[i] = target[i].toDouble()
 
-        fft(srcRe, srcIm)
-        fft(tgtRe, tgtIm)
+        Fft.transform(srcRe, srcIm)
+        Fft.transform(tgtRe, tgtIm)
 
         // conj(X) · Y: the cross-correlation, the conjugate keeping the lag's sign as written.
         for (i in 0 until fftLen) {
@@ -183,7 +182,7 @@ object ForkVersionAlignment {
             srcRe[i] = a * c - b * d
             srcIm[i] = a * d + b * c
         }
-        fft(srcRe, srcIm, inverse = true)
+        Fft.transform(srcRe, srcIm, inverse = true)
 
         val result = DoubleArray(n + m - 1)
         for (lag in -(n - 1) until m) {
@@ -191,56 +190,5 @@ object ForkVersionAlignment {
             result[lag + n - 1] = srcRe[bin]
         }
         return result
-    }
-
-    /** In-place iterative radix-2 FFT; a power-of-two length. [inverse] divides by the length. */
-    private fun fft(re: DoubleArray, im: DoubleArray, inverse: Boolean = false) {
-        val n = re.size
-
-        var j = 0
-        for (i in 1 until n) {
-            var bit = n shr 1
-            while (j and bit != 0) {
-                j = j xor bit
-                bit = bit shr 1
-            }
-            j = j or bit
-            if (i < j) {
-                var t = re[i]; re[i] = re[j]; re[j] = t
-                t = im[i]; im[i] = im[j]; im[j] = t
-            }
-        }
-
-        var len = 2
-        while (len <= n) {
-            val angle = 2.0 * PI / len * (if (inverse) 1.0 else -1.0)
-            val stepRe = cos(angle)
-            val stepIm = sin(angle)
-            for (start in 0 until n step len) {
-                var twiddleRe = 1.0
-                var twiddleIm = 0.0
-                for (k in 0 until len / 2) {
-                    val evenRe = re[start + k]
-                    val evenIm = im[start + k]
-                    val oddRe = re[start + k + len / 2] * twiddleRe - im[start + k + len / 2] * twiddleIm
-                    val oddIm = re[start + k + len / 2] * twiddleIm + im[start + k + len / 2] * twiddleRe
-                    re[start + k] = evenRe + oddRe
-                    im[start + k] = evenIm + oddIm
-                    re[start + k + len / 2] = evenRe - oddRe
-                    im[start + k + len / 2] = evenIm - oddIm
-                    val nextRe = twiddleRe * stepRe - twiddleIm * stepIm
-                    twiddleIm = twiddleRe * stepIm + twiddleIm * stepRe
-                    twiddleRe = nextRe
-                }
-            }
-            len = len shl 1
-        }
-
-        if (inverse) {
-            for (i in 0 until n) {
-                re[i] /= n
-                im[i] /= n
-            }
-        }
     }
 }

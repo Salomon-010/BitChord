@@ -1,0 +1,83 @@
+package com.music.bitchord.audio.authenticity
+
+import kotlin.math.ceil
+import kotlin.math.log10
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
+
+/** Fork: a sharp drop in a [Spectrum]: [hz] where the level falls, [stepDb] how far it falls. */
+data class Cutoff(val hz: Double, val stepDb: Double)
+
+/**
+ * Fork: finds the brick-wall low-pass a lossy encoder leaves (LAME's 17 kHz at 128 kbps, 20.5 kHz at
+ * 320, AAC's own), which a later lossless copy keeps.
+ *
+ * The spectrum is smoothed into [BAND_HZ] bands; at every band edge from [SEARCH_FROM_HZ] up, the
+ * mean level (in dB) of [GAP_HZ]..[SPAN_HZ] below the edge is compared with the same span above
+ * it. The gap leaves out the filter's own transition. The edge with the largest difference wins
+ * if that difference reaches [MIN_STEP_DB]: a recording's natural roll-off loses a few dB over
+ * such a span, an encoder's low-pass tens.
+ *
+ * The last [TOP_FRACTION] of the band is never used as "above": a genuine file's own anti-alias
+ * filter sits there, so at 44.1 kHz no edge past ~20.7 kHz can be found at all.
+ */
+object CutoffDetector {
+
+    const val BAND_HZ = 100.0
+    const val SEARCH_FROM_HZ = 9_000.0
+    const val GAP_HZ = 300.0
+    const val SPAN_HZ = 1_500.0
+    /** At least this much of "above" must fit under the top, or the edge is not tried. */
+    const val MIN_ABOVE_HZ = 600.0
+    const val TOP_FRACTION = 0.98
+    const val MIN_STEP_DB = 25.0
+
+    fun find(spectrum: Spectrum): Cutoff? {
+        val perBand = max(1, (BAND_HZ / spectrum.binHz).roundToInt())
+        val bandHz = perBand * spectrum.binHz
+        val count = min(
+            (spectrum.nyquist * TOP_FRACTION / bandHz).toInt(),
+            spectrum.power.size / perBand,
+        )
+        val level = DoubleArray(count) { band ->
+            var sum = 0.0
+            for (bin in band * perBand until (band + 1) * perBand) sum += spectrum.power[bin]
+            10.0 * log10(sum / perBand + 1e-30)
+        }
+        val gap = max(1, (GAP_HZ / bandHz).roundToInt())
+        val span = max(gap + 1, (SPAN_HZ / bandHz).roundToInt())
+        val minAbove = max(1, ceil(MIN_ABOVE_HZ / bandHz).toInt())
+
+        var bestEdge = -1
+        var bestBelow = 0.0
+        var bestAbove = 0.0
+        for (edge in max(span, ceil(SEARCH_FROM_HZ / bandHz).toInt()) until count) {
+            val aboveFrom = edge + gap
+            val aboveTo = min(edge + span, count)
+            if (aboveTo - aboveFrom < minAbove) break
+            val below = mean(level, edge - span, edge - gap)
+            val above = mean(level, aboveFrom, aboveTo)
+            if (bestEdge < 0 || below - above > bestBelow - bestAbove) {
+                bestEdge = edge
+                bestBelow = below
+                bestAbove = above
+            }
+        }
+        if (bestEdge < 0 || bestBelow - bestAbove < MIN_STEP_DB) return null
+
+        // Where the level crosses halfway between the two sides: the last band at or over it.
+        val half = (bestBelow + bestAbove) / 2.0
+        var last = bestEdge - span
+        for (band in bestEdge - span until min(bestEdge + span, count)) {
+            if (level[band] >= half) last = band
+        }
+        return Cutoff(hz = (last + 1) * bandHz, stepDb = bestBelow - bestAbove)
+    }
+
+    private fun mean(values: DoubleArray, from: Int, to: Int): Double {
+        var sum = 0.0
+        for (i in from until to) sum += values[i]
+        return sum / (to - from)
+    }
+}

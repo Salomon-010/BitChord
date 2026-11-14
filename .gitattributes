@@ -1,2 +1,5 @@
 native/ffmpeg/build.sh text eol=lf
 docker/*.sh text eol=lf
+shared/src/jvmTest/resources/authenticity/*.sh text eol=lf
+shared/src/jvmTest/resources/authenticity/*.s16le binary
+shared/src/jvmTest/resources/authenticity/*.s24le binary
