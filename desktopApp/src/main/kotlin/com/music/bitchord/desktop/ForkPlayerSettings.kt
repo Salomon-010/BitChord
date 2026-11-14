@@ -240,7 +240,7 @@ internal fun ForkCanvasAutoHideRow() {
     )
 }
 
-/** Storage: the phone's "Clear lyrics cache", after its clip rows. */
+/** Storage: the phone's DesktopStrings["d_clear_lyrics_cache", "Clear lyrics cache"], after its clip rows. */
 @Composable
 internal fun ForkClearLyricsRow() {
     val scope = rememberCoroutineScope()
@@ -250,8 +250,8 @@ internal fun ForkClearLyricsRow() {
     }
     SettingsRow(
         Icons.Rounded.DeleteSweep,
-        "Clear lyrics cache",
-        "Navidrome lyrics kept from earlier plays, so they show with no network (${forkLyricsSize(bytes)}). Lyrics of kept albums stay",
+        DesktopStrings["d_clear_lyrics_cache", "Clear lyrics cache"],
+        DesktopStrings.format("d_clear_lyrics_cache_subtitle", forkLyricsSize(bytes), fallback = "Navidrome lyrics kept from earlier plays, so they show with no network (%1\$s). Lyrics of kept albums stay"),
     ) {
         scope.launch(Dispatchers.IO) {
             NavidromeLyrics.clearCache()

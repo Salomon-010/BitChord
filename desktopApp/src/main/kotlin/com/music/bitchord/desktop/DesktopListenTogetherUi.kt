@@ -256,7 +256,7 @@ private fun PartyLanding(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(DesktopStrings["d_party_size", "Party size"], fontWeight = FontWeight.Medium)
-                            Text("2–10 people", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
+                            Text(DesktopStrings["d_party_size_range", "2–10 people"], color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
                         }
                         Stepper("−", enabled && maxMembers > 2) { onMaxMembersChange(maxMembers - 1) }
                         Text("$maxMembers", modifier = Modifier.width(34.dp), textAlign = TextAlign.Center)
@@ -365,7 +365,7 @@ private fun JoinConfirmation(
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
         )
-        Text("${preview.memberCount} of ${preview.maxMembers} people · ${preview.code}", color = DesktopSecondary)
+        Text(DesktopStrings.format("d_party_preview_line", preview.memberCount, preview.maxMembers, preview.code, fallback = "%1\$d of %2\$d people · %3\$s"), color = DesktopSecondary)
         Spacer(Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.spacedBy((-10).dp)) {
             preview.members.take(5).forEach { PartyAvatar(it.avatarUrl, 50, it.displayName) }
@@ -414,7 +414,7 @@ private fun RoomHero(state: DesktopListenTogether.State) {
     val invite = DesktopListenTogether.inviteUrl(state.code.orEmpty())
     Row(Modifier.fillMaxWidth().desktopCardInset(RoundedCornerShape(16.dp)).padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text("PARTY CODE", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
+            Text(DesktopStrings["d_party_code_caps", "PARTY CODE"], color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
             Text(state.code.orEmpty(), fontSize = 30.sp, fontWeight = FontWeight.Bold, letterSpacing = 6.sp)
             Text(connectionLine(state), color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(6.dp))
@@ -436,7 +436,7 @@ private fun RoomHero(state: DesktopListenTogether.State) {
 private fun NowPlayingCard(state: DesktopListenTogether.State) {
     val track = state.playback.track
     Column(Modifier.fillMaxWidth().desktopCardInset(RoundedCornerShape(16.dp)).padding(18.dp)) {
-        Text("NOW PLAYING", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
+        Text(DesktopStrings["d_now_playing_caps", "NOW PLAYING"], color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(10.dp))
         if (track == null) {
             Text(DesktopStrings["d_party_nothing_playing", "Nothing playing yet"], color = DesktopSecondary)
@@ -458,7 +458,7 @@ private fun NowPlayingCard(state: DesktopListenTogether.State) {
 @Composable
 private fun QueueCard(state: DesktopListenTogether.State) {
     Column(Modifier.fillMaxWidth().desktopCardInset(RoundedCornerShape(16.dp)).padding(18.dp)) {
-        Text("UP NEXT", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
+        Text(DesktopStrings["d_up_next_caps", "UP NEXT"], color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(8.dp))
         val upcoming = state.queue.items.drop((state.queue.index + 1).coerceAtLeast(0)).take(5)
         if (upcoming.isEmpty()) Text(DesktopStrings["d_shared_queue_empty", "The shared queue is empty"], color = DesktopSecondary)
@@ -479,7 +479,7 @@ private fun QueueCard(state: DesktopListenTogether.State) {
 private fun MembersCard(state: DesktopListenTogether.State) {
     Column(Modifier.fillMaxWidth().desktopCardInset(RoundedCornerShape(16.dp)).padding(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("LISTENING", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+            Text(DesktopStrings["d_listening_caps", "LISTENING"], color = DesktopSecondary, style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
             Text("${state.members.size}/${state.maxMembers}", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         }
         Spacer(Modifier.height(8.dp))
@@ -495,7 +495,7 @@ private fun MembersCard(state: DesktopListenTogether.State) {
 @Composable
 private fun HostControls(state: DesktopListenTogether.State) {
     Column(Modifier.fillMaxWidth().desktopCardInset(RoundedCornerShape(16.dp)).padding(18.dp)) {
-        Text("HOST CONTROLS", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
+        Text(DesktopStrings["d_host_controls_caps", "HOST CONTROLS"], color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(if (state.hostOnlyControl) Icons.Rounded.Lock else Icons.Rounded.LockOpen, null, modifier = Modifier.size(20.dp))
@@ -527,7 +527,7 @@ private fun HostControls(state: DesktopListenTogether.State) {
 private fun ActivityCard(entries: List<PartyActivity>) {
     val clock = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     Column(Modifier.fillMaxWidth().desktopCardInset(RoundedCornerShape(16.dp)).padding(18.dp)) {
-        Text("ACTIVITY", color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
+        Text(DesktopStrings["d_activity_caps", "ACTIVITY"], color = DesktopSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(8.dp))
         entries.take(8).forEach { entry ->
             Text(

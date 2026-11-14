@@ -157,7 +157,7 @@ internal object DesktopSourceRegistry {
     private fun DesktopSourceConfig.descriptor() = DesktopSourceDescriptor(
         id = id,
         name = displayName,
-        detail = if (kind.needsServer && baseUrl.isBlank()) "Setup required" else kind.detail,
+        detail = if (kind.needsServer && baseUrl.isBlank()) DesktopStrings["d_setup_required", "Setup required"] else kind.detail,
         kind = kind,
         configured = isComplete,
         enabled = enabled,

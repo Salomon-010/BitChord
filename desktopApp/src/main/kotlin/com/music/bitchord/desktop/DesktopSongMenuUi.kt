@@ -351,7 +351,7 @@ internal fun DesktopSongMenu(
             DesktopSleepTimer.presets.forEach { minutes ->
                 DesktopMenuRow(
                     icon = Icons.Rounded.Bedtime,
-                    label = "$minutes minutes",
+                    label = DesktopStrings.format("d_minutes_label", minutes, fallback = "%1\$d minutes"),
                     selected = sleepTimerMinutes == minutes && !sleepAfterTrack,
                 ) { onSleepTimer(minutes) }
             }
@@ -372,7 +372,7 @@ internal fun DesktopSongMenu(
         (onRevertToOriginal ?: onUpgradeQuality)?.let { action ->
             DesktopMenuRow(
                 icon = if (onRevertToOriginal != null) Icons.AutoMirrored.Rounded.Undo else Icons.Rounded.HighQuality,
-                label = if (onRevertToOriginal != null) "Revert to original" else "Upgrade quality",
+                label = if (onRevertToOriginal != null) DesktopStrings["d_revert_to_original", "Revert to original"] else DesktopStrings["d_upgrade_quality", "Upgrade quality"],
                 onClick = action,
             )
             DesktopMenuDivider()
@@ -382,13 +382,13 @@ internal fun DesktopSongMenu(
         if (signedIn && !isOffline) {
             DesktopMenuRow(
                 icon = if (liked) BitChordIcons.HeartFilled else BitChordIcons.Heart,
-                label = if (liked) "Remove from liked" else "Like",
+                label = if (liked) DesktopStrings["d_remove_from_liked", "Remove from liked"] else DesktopStrings["d_like", "Like"],
                 tint = if (liked) DesktopAccent else null,
                 onClick = onToggleLike,
             )
             DesktopMenuRow(
                 icon = if (disliked) Icons.Rounded.ThumbDown else Icons.Rounded.ThumbDownOffAlt,
-                label = if (disliked) "Undo dislike" else "Dislike",
+                label = if (disliked) DesktopStrings["d_undo_dislike", "Undo dislike"] else DesktopStrings["d_dislike", "Dislike"],
                 tint = if (disliked) DesktopAccent else null,
                 onClick = onToggleDislike,
             )
@@ -422,7 +422,7 @@ internal fun DesktopSongMenu(
             )
         }
         ForkRemoveRows(song, onDismiss) // fork: Remove from cache / Remove from history, after Download as on the phone
-        if (!com.music.bitchord.data.navidrome.NavidromeRadio.isRadio(song.videoId)) DesktopMenuRow(Icons.Rounded.Radio, if (com.music.bitchord.data.navidrome.NavidromeSettings.isNavidromeId(song.videoId)) "Start radio (Instant Mix)" else DesktopStrings["start_radio", "Start radio"], onClick = onStartRadio)
+        if (!com.music.bitchord.data.navidrome.NavidromeRadio.isRadio(song.videoId)) DesktopMenuRow(Icons.Rounded.Radio, if (com.music.bitchord.data.navidrome.NavidromeSettings.isNavidromeId(song.videoId)) DesktopStrings["d_start_radio_instant_mix", "Start radio (Instant Mix)"] else DesktopStrings["start_radio", "Start radio"], onClick = onStartRadio)
         DesktopMenuRow(Icons.AutoMirrored.Rounded.PlaylistPlay, DesktopStrings["play_next", "Play next"], onClick = onPlayNext)
         DesktopMenuRow(Icons.AutoMirrored.Rounded.QueueMusic, DesktopStrings["add_to_queue", "Add to queue"], onClick = onAddToQueue)
         // What the player's content column shows, and the ways of reading the
@@ -499,7 +499,7 @@ internal fun DesktopSongMenu(
 }
 
 private fun sleepTimerLabel(minutes: Int?, afterTrack: Boolean): String = when {
-    afterTrack -> "End of track"
+    afterTrack -> DesktopStrings["d_end_of_track", "End of track"]
     minutes != null -> "$minutes min"
     else -> ""
 }

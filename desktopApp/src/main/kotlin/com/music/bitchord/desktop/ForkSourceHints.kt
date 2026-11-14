@@ -76,7 +76,7 @@ internal object ForkSourceHints {
                     runCatching { healthOf(config) }.getOrElse {
                         // The page closing mid-pass is not the source failing.
                         if (it is CancellationException) throw it
-                        Health.Unreachable(it.message ?: "Failed")
+                        Health.Unreachable(it.message ?: DesktopStrings["d_failed", "Failed"])
                     }
                 }
                 _health.update { it + (config.id to found) }
@@ -107,7 +107,7 @@ internal object ForkSourceHints {
      * taken out here.
      */
     internal fun addonFailure(failure: Throwable): Health {
-        val reason = failure.message ?: "Could not reach the addon"
+        val reason = failure.message ?: DesktopStrings["d_addon_unreachable", "Could not reach the addon"]
         return if (failure is DesktopAddonException && failure !is DesktopAddonUnavailable) {
             Health.Rejected(reason)
         } else {
@@ -120,7 +120,7 @@ internal object ForkSourceHints {
         if (failure.message == NO_MODULES) {
             Health.Rejected("The index answered but listed no modules — check the URL")
         } else {
-            Health.Unreachable(failure.message ?: "Could not reach the module index")
+            Health.Unreachable(failure.message ?: DesktopStrings["d_module_index_unreachable", "Could not reach the module index"])
         }
 
     /**
@@ -141,7 +141,7 @@ internal object ForkSourceHints {
      * phone's "Tap to finish setting up" is a touch screen's).
      */
     fun statusLine(config: DesktopSourceConfig, health: Health?, tested: String? = null): String = when {
-        !config.isComplete -> "Setup required"
+        !config.isComplete -> DesktopStrings["d_setup_required", "Setup required"]
         config.kind == DesktopSourceKind.JIOSAAVN -> DesktopStrings[
             "jiosaavn_mismatch_warning",
             "May match the wrong version of a song. Enable at your own risk.",

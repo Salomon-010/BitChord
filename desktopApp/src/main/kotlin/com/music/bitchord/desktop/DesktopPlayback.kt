@@ -158,9 +158,9 @@ data class DesktopStreamFormat(
             statedKbps?.let { "$it kbps" },
             when (channels) {
                 null -> null
-                1 -> "Mono"
-                2 -> "Stereo"
-                else -> "$channels channels"
+                1 -> DesktopStrings["d_mono", "Mono"]
+                2 -> DesktopStrings["d_stereo", "Stereo"]
+                else -> DesktopStrings.format("d_channels", channels, fallback = "%1\$d channels")
             },
         ).joinToString(" · ").ifBlank { "Unknown format" }
 

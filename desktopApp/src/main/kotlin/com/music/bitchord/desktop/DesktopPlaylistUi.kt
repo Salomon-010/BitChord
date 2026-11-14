@@ -105,7 +105,7 @@ internal fun DesktopPlaylistDialog(
             return@DesktopDialogFrame
         }
 
-        DialogHeading("Add to playlist", song?.let { "${it.title} — ${it.artist}" }.orEmpty())
+        DialogHeading(DesktopStrings["add_to_playlist", "Add to playlist"], song?.let { "${it.title} — ${it.artist}" }.orEmpty())
         error?.let { DialogError(it) }
         DialogAction(BitChordIcons.Plus, "New playlist", enabled = !busy) { creating = true }
 
@@ -127,11 +127,11 @@ internal fun DesktopPlaylistDialog(
             }
             account.isEmpty() && localPlaylists.isEmpty() -> Text(
                 when {
-                    !signedIn -> "No playlists on this computer yet. Sign in to see the ones on your account."
+                    !signedIn -> DesktopStrings["d_no_playlists_sign_in", "No playlists on this computer yet. Sign in to see the ones on your account."]
                     // Signed in, but this track cannot go on the account — so offering to sign in
                     // would be answering a question nobody asked.
-                    !canUseAccount -> "No playlists on this computer yet. Make one and this track goes straight into it."
-                    else -> "No playlists yet. Make one and this song goes straight into it."
+                    !canUseAccount -> DesktopStrings["d_no_playlists_local", "No playlists on this computer yet. Make one and this track goes straight into it."]
+                    else -> DesktopStrings["d_no_playlists_yet", "No playlists yet. Make one and this song goes straight into it."]
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = DesktopSecondary,
@@ -287,7 +287,7 @@ internal fun DesktopRenamePlaylistDialog(
     val submit = { if (name.isNotBlank() && name.trim() != current && !busy) onRename(name.trim()) }
 
     DesktopDialogFrame(onDismiss = onDismiss) {
-        DialogHeading("Rename playlist", current)
+        DialogHeading(DesktopStrings["d_rename_playlist", "Rename playlist"], current)
         error?.let { DialogError(it) }
         Box(
             Modifier
@@ -329,9 +329,8 @@ internal fun DesktopDeletePlaylistDialog(
 ) {
     DesktopDialogFrame(onDismiss = onDismiss) {
         DialogHeading(
-            "Delete playlist",
-            "“$title” will be removed from your YouTube Music account, on every " +
-                "device. The songs in it are not deleted.",
+            DesktopStrings["d_delete_playlist", "Delete playlist"],
+            DesktopStrings.format("d_delete_playlist_body", title, fallback = "“%1\$s” will be removed from your YouTube Music account, on every device. The songs in it are not deleted."),
         )
         error?.let { DialogError(it) }
         DialogButtons(
@@ -363,7 +362,7 @@ internal fun DesktopReorderPlaylistDialog(
     val entries by produceState<UiState<List<Song>>>(UiState.Loading, browseId) {
         value = DesktopSearchClient.playlistEntries(browseId).fold(
             onSuccess = { UiState.Success(it) },
-            onFailure = { UiState.Error(it.message ?: "Could not load the playlist") },
+            onFailure = { UiState.Error(it.message ?: DesktopStrings["d_playlist_load_failed", "Could not load the playlist"]) },
         )
     }
     // Null until a row has been dragged: an untouched list has nothing to send.

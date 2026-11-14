@@ -222,8 +222,8 @@ internal object ForkHandoffDesktop {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(end = 8.dp),
                 )
-                TextButton(onClick = { restoreOffered() }) { Text("Continue") }
-                TextButton(onClick = ::dismiss) { Text("Not now", color = DesktopSecondary) }
+                TextButton(onClick = { restoreOffered() }) { Text(DesktopStrings["d_continue", "Continue"]) }
+                TextButton(onClick = ::dismiss) { Text(DesktopStrings["not_now", "Not now"], color = DesktopSecondary) }
             }
         }
     }
@@ -380,7 +380,7 @@ internal object ForkHandoffDesktop {
             if (ok) {
                 _offer.compareAndSet(note, null)
             } else {
-                withContext(Dispatchers.Main) { ForkNotice.show("Could not continue that queue here") }
+                withContext(Dispatchers.Main) { ForkNotice.show(DesktopStrings["d_handoff_failed", "Could not continue that queue here"]) }
             }
         }
     }
@@ -399,8 +399,8 @@ internal object ForkHandoffDesktop {
             val note = read.getOrNull()?.takeIf { it.device.id != deviceId && it.items.isNotEmpty() }
             val message = when {
                 read.isFailure -> DesktopStrings["fork_handoff_unreachable", "Couldn't reach the server"] // was "Nothing to continue", which read as no note
-                note == null -> "Nothing to continue from another device"
-                !restore(note) -> "Could not continue that queue here"
+                note == null -> DesktopStrings["d_handoff_nothing", "Nothing to continue from another device"]
+                !restore(note) -> DesktopStrings["d_handoff_failed", "Could not continue that queue here"]
                 else -> null
             }
             message?.let { withContext(Dispatchers.Main) { ForkNotice.show(it) } }

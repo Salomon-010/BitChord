@@ -719,7 +719,7 @@ internal fun ForkBackupGroup() {
                 exportStatus = withContext(Dispatchers.IO) {
                     runCatching { ForkBackup.exportTo(target) }.fold(
                         onSuccess = { "Exported settings and ${months(it)}" },
-                        onFailure = { "Export failed: ${it.message ?: "unknown error"}" },
+                        onFailure = { DesktopStrings.format("d_export_failed", it.message ?: DesktopStrings["d_unknown_error", "unknown error"], fallback = "Export failed: %1\$s") },
                     )
                 }
             }
@@ -755,7 +755,7 @@ internal fun ForkBackupGroup() {
                                 imported = "Imported ${months(it.months)} from v${it.from}." +
                                     if (it.problems.isEmpty()) "" else " Some parts could not be restored: ${it.problems.joinToString(", ")}."
                             },
-                            onFailure = { importStatus = "Import failed: ${it.message ?: "unknown error"}" },
+                            onFailure = { importStatus = DesktopStrings.format("d_import_failed", it.message ?: DesktopStrings["d_unknown_error", "unknown error"], fallback = "Import failed: %1\$s") },
                         )
                     }
                 }) { Text(DesktopStrings["choose_file", "Choose file"]) }
@@ -766,9 +766,9 @@ internal fun ForkBackupGroup() {
     imported?.let { message ->
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("Backup imported") },
-            text = { Text("$message Sigui closes now; open it again to use the imported settings.") },
-            confirmButton = { TextButton(onClick = { DesktopTrayMenu.forkQuit() }) { Text("Close Sigui") } },
+            title = { Text(DesktopStrings["d_backup_imported", "Backup imported"]) },
+            text = { Text(DesktopStrings.format("d_backup_imported_body", message, fallback = "%1\$s Sigui closes now; open it again to use the imported settings.")) },
+            confirmButton = { TextButton(onClick = { DesktopTrayMenu.forkQuit() }) { Text(DesktopStrings["d_close_sigui", "Close Sigui"]) } },
         )
     }
 }

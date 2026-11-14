@@ -100,7 +100,7 @@ internal fun ForkRadioPage(
             Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(shown.message)
                 Spacer(Modifier.height(12.dp))
-                Button(onClick = { attempt++ }) { Text("Retry") }
+                Button(onClick = { attempt++ }) { Text(DesktopStrings["song_info_retry", "Retry"]) }
             }
         }
         is UiState.Success -> LazyColumn(
@@ -112,7 +112,7 @@ internal fun ForkRadioPage(
                 Column(Modifier.padding(bottom = 12.dp)) {
                     Text(ForkRadio.TITLE, style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(2.dp))
-                    Text("Radio stations from your Navidrome server", style = MaterialTheme.typography.bodySmall, color = DesktopSecondary)
+                    Text(DesktopStrings["d_navidrome_radio_subtitle", "Radio stations from your Navidrome server"], style = MaterialTheme.typography.bodySmall, color = DesktopSecondary)
                 }
             }
             itemsIndexed(shown.data, key = { _, station -> station.videoId }) { index, station ->

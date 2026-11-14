@@ -16,8 +16,7 @@ internal enum class DesktopSourceKind(
     /** An addon server the user pointed at themselves. */
     ADDON(
         label = "Addon",
-        detail = "An addon server you host or were given a link to. Searched and streamed over " +
-            "plain HTTP — no code is downloaded or run.",
+        detail = DesktopStrings["d_source_addon_detail", "An addon server you host or were given a link to. Searched and streamed over plain HTTP — no code is downloaded or run."],
         labels = listOf("FLAC", "Lossless", "Hi-Res"),
         needsServer = true,
         supportsLossless = true,
@@ -27,7 +26,7 @@ internal enum class DesktopSourceKind(
     /** A module index the user pointed at themselves. */
     CUSTOM_MODULE(
         label = DesktopStrings["d_custom_module", "Custom module"],
-        detail = "Your own compatible module index. Tried before the built-in one.",
+        detail = DesktopStrings["d_source_custom_module_detail", "Your own compatible module index. Tried before the built-in one."],
         labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
         needsServer = true,
         supportsLossless = true,
@@ -37,7 +36,7 @@ internal enum class DesktopSourceKind(
     /** A module index seeded from a build-time URL. */
     MODULE(
         label = DesktopStrings["d_module_source", "Module source"],
-        detail = "JavaScript modules for FLAC, lossless, Hi-Res and more.",
+        detail = DesktopStrings["d_source_modules_detail", "JavaScript modules for FLAC, lossless, Hi-Res and more."],
         labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
         needsServer = true,
         supportsLossless = true,
@@ -45,7 +44,7 @@ internal enum class DesktopSourceKind(
     ),
     JIOSAAVN(
         label = "JioSaavn",
-        detail = "High Quality · 320kbps",
+        detail = DesktopStrings["d_source_jiosaavn_detail", "High Quality · 320kbps"],
         labels = listOf("High Quality", "320kbps"),
         needsServer = false,
         supportsLossless = false,
@@ -53,7 +52,7 @@ internal enum class DesktopSourceKind(
     ),
     YOUTUBE(
         label = "YouTube Music",
-        detail = "Lossy · Full catalogue · Radio",
+        detail = DesktopStrings["d_source_youtube_detail", "Lossy · Full catalogue · Radio"],
         labels = listOf("Lossy", "Full catalogue", "Radio"),
         needsServer = false,
         supportsLossless = false,

@@ -165,7 +165,7 @@ internal object ForkTopPicks {
             // A second tap before the first answered: only the latest plays, as the phone's playRequestGeneration.
             if (request != requests) return@launch
             if (songs.isEmpty()) {
-                ForkNotice.show("Couldn't load the songs")
+                ForkNotice.show(DesktopStrings["d_songs_load_failed", "Couldn't load the songs"])
                 return@launch
             }
             val sourceId = pick.watch?.playlistId ?: pick.mood?.name

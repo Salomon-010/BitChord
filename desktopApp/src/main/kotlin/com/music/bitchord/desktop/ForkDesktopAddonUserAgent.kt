@@ -87,7 +87,7 @@ internal fun ForkAddonUserAgentRow(config: DesktopSourceConfig) {
             Icon(Icons.Rounded.Language, contentDescription = null, tint = DesktopAccent, modifier = Modifier.size(14.dp))
             Spacer(Modifier.width(4.dp))
             Text(
-                "User agent: ${active.label}",
+                DesktopStrings.format("d_user_agent", active.label, fallback = "User agent: %1\$s"),
                 color = DesktopAccent,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,

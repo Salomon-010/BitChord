@@ -211,33 +211,32 @@ internal object ForkChannelLayout {
         val takes = mix?.let { (channels, mask) -> name(channels, mask) }
         if (!enabled) {
             return stereo(
-                "Off: songs in 5.1 or 7.1 are folded to stereo" +
-                    (takes?.let { ". This output takes $it" } ?: ""),
+                DesktopStrings["d_multichannel_off", "Off: songs in 5.1 or 7.1 are folded to stereo"] +
+                    (takes?.let { DesktopStrings.format("d_multichannel_output_takes", it, fallback = ". This output takes %1\$s") } ?: ""),
             )
         }
-        if (!wasapi) return stereo("Folding to stereo: this needs the Windows (WASAPI) output, which isn't available")
-        if (refusal != null) return stereo("Folding to stereo: Windows refused the multichannel stream ($refusal). Switch off and on to try again")
+        if (!wasapi) return stereo(DesktopStrings["d_multichannel_needs_wasapi", "Folding to stereo: this needs the Windows (WASAPI) output, which isn't available"])
+        if (refusal != null) return stereo(DesktopStrings.format("d_multichannel_refused", refusal, fallback = "Folding to stereo: Windows refused the multichannel stream (%1\$s). Switch off and on to try again"))
         if (spatialRate > 0) {
             return ForkOutputLayout(
                 8,
                 SURROUND_7_1,
-                "Sending 7.1 to Windows Spatial Sound (Dolby Atmos for Headphones, Windows Sonic) as its speaker bed. Stereo songs play on the front left and right",
+                DesktopStrings["d_multichannel_spatial", "Sending 7.1 to Windows Spatial Sound (Dolby Atmos for Headphones, Windows Sonic) as its speaker bed. Stereo songs play on the front left and right"],
                 spatialRate,
             )
         }
-        val (channels, rawMask) = mix ?: return stereo("Folding to stereo: Windows didn't say what this output takes")
+        val (channels, rawMask) = mix ?: return stereo(DesktopStrings["d_multichannel_unknown", "Folding to stereo: Windows didn't say what this output takes"])
         if (channels <= 2) {
             return stereo(
-                "Folding to stereo: this output takes ${name(channels, rawMask).lowercase()}. " +
-                    "Turn on Dolby Atmos for Headphones or a 5.1/7.1 speaker setup for it in Windows",
+                DesktopStrings.format("d_multichannel_stereo_output", name(channels, rawMask).lowercase(), fallback = "Folding to stereo: this output takes %1\$s. Turn on Dolby Atmos for Headphones or a 5.1/7.1 speaker setup for it in Windows"),
             )
         }
         val mask = deviceMask(channels, rawMask)
-            ?: return stereo("Folding to stereo: this output's $channels-channel layout isn't supported")
+            ?: return stereo(DesktopStrings.format("d_multichannel_unsupported", channels, fallback = "Folding to stereo: this output's %1\$d-channel layout isn't supported"))
         return ForkOutputLayout(
             channels,
             mask,
-            "Sending ${name(channels, mask)} to Windows, this output's layout. Stereo songs play on the front left and right",
+            DesktopStrings.format("d_multichannel_sending", name(channels, mask), fallback = "Sending %1\$s to Windows, this output's layout. Stereo songs play on the front left and right"),
         )
     }
 
@@ -515,8 +514,8 @@ internal fun ForkMultichannelRow() {
         else -> (layout?.reason ?: if (on) "On" else "Off: songs in 5.1 or 7.1 are folded to stereo") +
             when {
                 !on -> ""
-                layout?.active == true -> ". From the next song. Spatial audio, Karaoke and loop mixes don't run on more than two channels"
-                else -> ". From the next song"
+                layout?.active == true -> DesktopStrings["d_multichannel_next_song_limits", ". From the next song. Spatial audio, Karaoke and loop mixes don't run on more than two channels"]
+                else -> DesktopStrings["d_multichannel_next_song", ". From the next song"]
             }
     }
     ForkDisabledWhen(!supported) {

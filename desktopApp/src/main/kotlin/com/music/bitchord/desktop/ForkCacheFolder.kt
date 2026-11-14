@@ -62,6 +62,6 @@ internal object ForkCacheFolder {
         null
     }.getOrElse { failure ->
         DesktopTrackLog.log("could not open the song cache folder $folder: ${failure.message}")
-        "Could not open $folder"
+        DesktopStrings.format("d_could_not_open", folder, fallback = "Could not open %1\$s")
     }
 }

@@ -626,7 +626,7 @@ internal fun ForkReplayShareSheet(
                     saved = ForkReplayPoster.saveWithDialog(current, ForkReplayText.label(summary.period)) != null
                 }
                 ReplayShareAction(
-                    label = "Copy image",
+                    label = DesktopStrings["d_copy_image", "Copy image"],
                     doneLabel = "Copied!",
                     icon = Icons.Rounded.ContentCopy,
                     accent = true,

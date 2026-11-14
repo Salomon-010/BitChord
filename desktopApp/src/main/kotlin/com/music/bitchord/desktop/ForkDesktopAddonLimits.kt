@@ -147,7 +147,7 @@ internal fun ForkAddonLimitsRow(config: DesktopSourceConfig) {
     } else {
         preset.description
     }
-    val text = "Limits: $label" + (usage?.text?.ifBlank { null }?.let { " · $it" } ?: "")
+    val text = DesktopStrings.format("d_limits", label, fallback = "Limits: %1\$s") + (usage?.text?.ifBlank { null }?.let { " · $it" } ?: "")
     var open by remember(config.id) { mutableStateOf(false) }
     // Greyed with its row, never hidden.
     Box(Modifier.padding(start = 53.dp, bottom = 6.dp).alpha(if (config.enabled) 1f else 0.45f)) {
@@ -168,7 +168,7 @@ internal fun ForkAddonLimitsRow(config: DesktopSourceConfig) {
                 modifier = Modifier.weight(1f, fill = false),
             )
             Spacer(Modifier.width(2.dp))
-            Icon(BitChordIcons.ChevronRight, contentDescription = "Limits", tint = DesktopAccent, modifier = Modifier.size(10.dp))
+            Icon(BitChordIcons.ChevronRight, contentDescription = DesktopStrings["d_limits_word", "Limits"], tint = DesktopAccent, modifier = Modifier.size(10.dp))
         }
         DropdownMenu(expanded = open && config.enabled, onDismissRequest = { open = false }) {
             ForkAddonLimits.presets.forEach { option ->

@@ -125,7 +125,7 @@ internal fun DesktopWindowButtons(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(0.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MacCaptionButton("Close", MAC_CLOSE, onClick = actions.close, inactiveFill = inactiveFill) { glyph ->
+        MacCaptionButton(DesktopStrings["d_close", "Close"], MAC_CLOSE, onClick = actions.close, inactiveFill = inactiveFill) { glyph ->
             val reach = GLYPH_HALF.toPx()
             val line = HAIRLINE.toPx()
             drawLine(
@@ -143,7 +143,7 @@ internal fun DesktopWindowButtons(modifier: Modifier = Modifier) {
                 cap = StrokeCap.Round,
             )
         }
-        MacCaptionButton("Minimize", MAC_MINIMIZE, onClick = actions.minimize, inactiveFill = inactiveFill) { glyph ->
+        MacCaptionButton(DesktopStrings["d_minimize", "Minimize"], MAC_MINIMIZE, onClick = actions.minimize, inactiveFill = inactiveFill) { glyph ->
             drawLine(
                 color = glyph,
                 start = Offset(center.x - GLYPH_HALF.toPx(), center.y),

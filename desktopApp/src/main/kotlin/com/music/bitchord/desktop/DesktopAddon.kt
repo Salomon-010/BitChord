@@ -929,7 +929,7 @@ internal object DesktopSourceFormats {
             ?: return DesktopDetectedFormat.Unsupported("That address did not return JSON")
         val obj = root as? JsonObject
             ?: return DesktopDetectedFormat.Unsupported(
-                "That JSON is a list, and every format Sigui reads is an object",
+                DesktopStrings["d_json_is_list", "That JSON is a list, and every format Sigui reads is an object"],
             )
 
         // A module index first: its marker is unmistakable and belongs to no other format.
@@ -948,7 +948,7 @@ internal object DesktopSourceFormats {
             val manifest = runCatching {
                 DesktopAddonClient.json.decodeFromString<DesktopAddonManifest>(body)
             }.getOrNull() ?: return DesktopDetectedFormat.Unsupported(
-                "That looks like an addon manifest, but it could not be read",
+                DesktopStrings["d_manifest_unreadable", "That looks like an addon manifest, but it could not be read"],
             )
             return when {
                 manifest.id.isBlank() ->
@@ -963,7 +963,7 @@ internal object DesktopSourceFormats {
         val listKey = obj.entries.firstOrNull { it.value is JsonArray && (it.value as JsonArray).isNotEmpty() }?.key
         if (listKey != null) {
             return DesktopDetectedFormat.Unsupported(
-                "That JSON lists \"$listKey\", which is not a format Sigui reads",
+                DesktopStrings.format("d_json_unknown_list", listKey, fallback = "That JSON lists \"%1\$s\", which is not a format Sigui reads"),
             )
         }
         val keys = obj.keys.take(4).joinToString(", ").ifBlank { "nothing" }

@@ -396,7 +396,7 @@ internal fun ForkNavidromeScreen(
                 songs = it
                 onStars(ForkNavidrome.starred())
             }
-            .onFailure { failure = it.message ?: "Couldn't read the library" }
+            .onFailure { failure = it.message ?: DesktopStrings["d_navidrome_library_failed", "Couldn't read the library"] }
     }
     Column(Modifier.fillMaxSize()) {
         // A narrow window wraps the controls onto the next line instead of squeezing them: in one
@@ -408,7 +408,7 @@ internal fun ForkNavidromeScreen(
         ) {
             Box(Modifier.height(48.dp).widthIn(max = 420.dp), contentAlignment = Alignment.CenterStart) {
                 Text(
-                    "$username on $url",
+                    DesktopStrings.format("d_user_on_server", username, url, fallback = "%1\$s on %2\$s"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -419,19 +419,19 @@ internal fun ForkNavidromeScreen(
                 if (!offline) { // radio needs the network: the phone's Library drops the link too
                     Row(Modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = { stations = !stations }) {
-                            Text(if (stations) "Library" else ForkRadio.TITLE, style = MaterialTheme.typography.bodySmall, maxLines = 1, softWrap = false)
+                            Text(if (stations) DesktopStrings["library", "Library"] else ForkRadio.TITLE, style = MaterialTheme.typography.bodySmall, maxLines = 1, softWrap = false)
                         }
                     }
                 }
                 Row(Modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) { ForkOfflineControls(onOpenPage) }
                 Row(Modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
                     val history by ForkYouTubeHistory.enabled.collectAsState()
-                    Text("Plays count on YouTube Music", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
+                    Text(DesktopStrings["d_plays_count_on_youtube", "Plays count on YouTube Music"], style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
                     Spacer(Modifier.widthIn(min = 8.dp))
                     Switch(checked = history, onCheckedChange = ForkNavidrome::setYouTubeHistory)
                 }
                 Row(Modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { NavidromeSettings.clear() }) { Text("Disconnect", maxLines = 1, softWrap = false) }
+                    TextButton(onClick = { NavidromeSettings.clear() }) { Text(DesktopStrings["d_disconnect", "Disconnect"], maxLines = 1, softWrap = false) }
                 }
             }
         }
@@ -444,7 +444,7 @@ internal fun ForkNavidromeScreen(
                 failure != null -> Column(Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(failure.orEmpty())
                     Spacer(Modifier.height(12.dp))
-                    Button(onClick = { attempt++ }) { Text("Retry") }
+                    Button(onClick = { attempt++ }) { Text(DesktopStrings["song_info_retry", "Retry"]) }
                 }
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
@@ -462,14 +462,14 @@ private fun ForkNavidromeLogin(contentPadding: PaddingValues) {
     val scope = rememberCoroutineScope()
     Box(Modifier.fillMaxSize().padding(contentPadding), contentAlignment = Alignment.Center) {
         Column(Modifier.widthIn(max = 420.dp).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Connect to Navidrome", style = MaterialTheme.typography.headlineSmall)
-            OutlinedTextField(url, { url = it }, Modifier.fillMaxWidth(), label = { Text("Server address") }, singleLine = true)
-            OutlinedTextField(username, { username = it }, Modifier.fillMaxWidth(), label = { Text("Username") }, singleLine = true)
+            Text(DesktopStrings["d_connect_to_navidrome", "Connect to Navidrome"], style = MaterialTheme.typography.headlineSmall)
+            OutlinedTextField(url, { url = it }, Modifier.fillMaxWidth(), label = { Text(DesktopStrings["d_server_address", "Server address"]) }, singleLine = true)
+            OutlinedTextField(username, { username = it }, Modifier.fillMaxWidth(), label = { Text(DesktopStrings["d_username", "Username"]) }, singleLine = true)
             OutlinedTextField(
                 password,
                 { password = it },
                 Modifier.fillMaxWidth(),
-                label = { Text("Password") },
+                label = { Text(DesktopStrings["d_password", "Password"]) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
             )
@@ -484,11 +484,11 @@ private fun ForkNavidromeLogin(contentPadding: PaddingValues) {
                         val address = NavidromeSettings.normalizeUrl(url)
                         NavidromeRepository.testConnection(address, username.trim(), password)
                             .onSuccess { NavidromeSettings.save(address, username, password) }
-                            .onFailure { failure = "Couldn’t connect. " + (it.message ?: "") } // as the phone's navidrome_test_failed
+                            .onFailure { failure = DesktopStrings["d_couldnt_connect", "Couldn’t connect. "] + (it.message ?: "") } // as the phone's navidrome_test_failed
                         trying = false
                     }
                 },
-            ) { Text(if (trying) "Connecting…" else "Connect") }
+            ) { Text(if (trying) DesktopStrings["d_connecting", "Connecting…"] else DesktopStrings["d_connect", "Connect"]) }
         }
     }
 }

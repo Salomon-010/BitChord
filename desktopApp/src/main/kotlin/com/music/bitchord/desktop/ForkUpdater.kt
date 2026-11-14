@@ -193,8 +193,8 @@ internal object ForkUpdater {
         stallMillis: Long = STALL_MILLIS,
         onProgress: (Float?) -> Unit,
     ): Path = withContext(Dispatchers.IO) {
-        val dir = into ?: throw UpdateFailed("This copy of Sigui can't update itself.")
-        val zipUrl = info.downloadUrl ?: throw UpdateFailed("The release has no Windows download.")
+        val dir = into ?: throw UpdateFailed(DesktopStrings["d_update_cant_self", "This copy of Sigui can't update itself."])
+        val zipUrl = info.downloadUrl ?: throw UpdateFailed(DesktopStrings["d_update_no_windows", "The release has no Windows download."])
         val sumsUrl = info.sumsUrl ?: throw UpdateFailed("The release has no $SUMS_NAME to check the download against.")
         clear(dir.resolve("staged"))
         Files.createDirectories(dir)
@@ -202,19 +202,19 @@ internal object ForkUpdater {
         val part = dir.resolve("BitChord Portable.zip.part")
         try {
             val sums = fetchText(sumsUrl, stallMillis)
-            val expected = expectedSha256(sums, zipUrl) ?: throw UpdateFailed("$SUMS_NAME doesn't list the download.")
+            val expected = expectedSha256(sums, zipUrl) ?: throw UpdateFailed(DesktopStrings.format("d_update_sums_missing", SUMS_NAME, fallback = "%1\$s doesn't list the download."))
             val actual = download(zipUrl, part, stallMillis, onProgress)
             if (!actual.equals(expected, ignoreCase = true)) {
-                throw UpdateFailed("The download is damaged (its SHA-256 doesn't match the release's). Try again.")
+                throw UpdateFailed(DesktopStrings["d_update_damaged", "The download is damaged (its SHA-256 doesn't match the release's). Try again."])
             }
             Files.move(part, zip, StandardCopyOption.REPLACE_EXISTING)
             onProgress(null)
             val staged = dir.resolve("staged")
             unzip(zip, staged)
             Files.deleteIfExists(zip)
-            val root = stagedRoot(staged) ?: throw UpdateFailed("The download holds no BitChord.exe.")
+            val root = stagedRoot(staged) ?: throw UpdateFailed(DesktopStrings["d_update_no_exe", "The download holds no BitChord.exe."])
             val missing = missingIn(root)
-            if (missing.isNotEmpty()) throw UpdateFailed("The download is missing ${missing.joinToString()}.")
+            if (missing.isNotEmpty()) throw UpdateFailed(DesktopStrings.format("d_update_missing_files", missing.joinToString(), fallback = "The download is missing %1\$s."))
             DesktopTrackLog.log("update: ${label(info.version, info.build)} staged in $root")
             root
         } catch (failure: Throwable) {
@@ -236,8 +236,8 @@ internal object ForkUpdater {
             }
         } catch (timeout: HttpTimeoutException) {
             null
-        } ?: throw UpdateFailed("$SUMS_NAME couldn't be read (nothing arrived for ${(stallMillis + 999) / 1000} s). Try again.")
-        if (response.statusCode() !in 200..299) throw UpdateFailed("$SUMS_NAME couldn't be read (HTTP ${response.statusCode()}).")
+        } ?: throw UpdateFailed(DesktopStrings.format("d_update_sums_stalled", SUMS_NAME, (stallMillis + 999) / 1000, fallback = "%1\$s couldn't be read (nothing arrived for %2\$d s). Try again."))
+        if (response.statusCode() !in 200..299) throw UpdateFailed(DesktopStrings.format("d_update_sums_http", SUMS_NAME, response.statusCode(), fallback = "%1\$s couldn't be read (HTTP %2\$d)."))
         return response.body()
     }
 
@@ -284,7 +284,7 @@ internal object ForkUpdater {
             }
         })
         try {
-            if (response.statusCode() !in 200..299) throw UpdateFailed("The download failed (HTTP ${response.statusCode()}).")
+            if (response.statusCode() !in 200..299) throw UpdateFailed(DesktopStrings.format("d_update_http", response.statusCode(), fallback = "The download failed (HTTP %1\$d)."))
             val total = response.headers().firstValueAsLong("Content-Length").orElse(-1L)
             val digest = MessageDigest.getInstance("SHA-256")
             Files.newOutputStream(to).use { output ->
@@ -294,7 +294,7 @@ internal object ForkUpdater {
                     val next = withTimeoutOrNull(stallMillis) { chunks.receiveCatching() } ?: throw UpdateFailed(stalled)
                     if (next.isClosed) {
                         val failure = next.exceptionOrNull() ?: break
-                        throw UpdateFailed("The download was cut off (${failure.message ?: failure.javaClass.simpleName}). Try again.")
+                        throw UpdateFailed(DesktopStrings.format("d_update_cut_off", failure.message ?: failure.javaClass.simpleName, fallback = "The download was cut off (%1\$s). Try again."))
                     }
                     for (buffer in next.getOrThrow()) {
                         val bytes = ByteArray(buffer.remaining()).also(buffer::get)
@@ -311,7 +311,7 @@ internal object ForkUpdater {
                         }
                     }
                 }
-                if (total > 0 && done != total) throw UpdateFailed("The download ended early. Try again.")
+                if (total > 0 && done != total) throw UpdateFailed(DesktopStrings["d_update_ended_early", "The download ended early. Try again."])
             }
             return digest.digest().joinToString("") { "%02x".format(it) }
         } finally {
@@ -331,7 +331,7 @@ internal object ForkUpdater {
         ZipInputStream(Files.newInputStream(zip)).use { stream ->
             while (true) {
                 val entry = stream.nextEntry ?: break
-                val target = safeTarget(base, entry.name) ?: throw UpdateFailed("The download holds a file outside its folder (${entry.name}).")
+                val target = safeTarget(base, entry.name) ?: throw UpdateFailed(DesktopStrings.format("d_update_outside_folder", entry.name, fallback = "The download holds a file outside its folder (%1\$s)."))
                 if (entry.isDirectory) {
                     Files.createDirectories(target)
                 } else {
@@ -360,10 +360,10 @@ internal object ForkUpdater {
      * unzipped without it, say).
      */
     fun startUpdater(root: Path) {
-        val app = appFolder ?: throw UpdateFailed("This copy of Sigui can't update itself.")
-        val dir = updateDir ?: throw UpdateFailed("This copy of Sigui can't update itself.")
+        val app = appFolder ?: throw UpdateFailed(DesktopStrings["d_update_cant_self", "This copy of Sigui can't update itself."])
+        val dir = updateDir ?: throw UpdateFailed(DesktopStrings["d_update_cant_self", "This copy of Sigui can't update itself."])
         val source = listOf(app.resolve(UPDATER_EXE), root.resolve(UPDATER_EXE)).firstOrNull(Files::isRegularFile)
-            ?: throw UpdateFailed("$UPDATER_EXE is missing. Download the zip from the releases page instead.")
+            ?: throw UpdateFailed(DesktopStrings.format("d_update_no_updater", UPDATER_EXE, fallback = "%1\$s is missing. Download the zip from the releases page instead."))
         val updater = dir.resolve(UPDATER_EXE)
         Files.copy(source, updater, StandardCopyOption.REPLACE_EXISTING)
         val self = ProcessHandle.current()

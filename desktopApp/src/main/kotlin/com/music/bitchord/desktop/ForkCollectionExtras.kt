@@ -85,7 +85,7 @@ internal object ForkCollectionExtras {
                 },
                 onFailure = {
                     DesktopTrackLog.log("playlist: could not add suggested ${song.videoId}: ${it.message}")
-                    ForkNotice.show(it.message ?: "Could not add to ${collection.title}")
+                    ForkNotice.show(it.message ?: DesktopStrings.format("d_could_not_add_to", collection.title, fallback = "Could not add to %1\$s"))
                 },
             )
         }

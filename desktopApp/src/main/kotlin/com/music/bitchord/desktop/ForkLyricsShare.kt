@@ -599,7 +599,7 @@ internal fun ForkLyricsShareSheet(hazeState: HazeState, request: LyricsShareRequ
                     },
                 )
                 ForkShareAction(
-                    label = "Copy image",
+                    label = DesktopStrings["d_copy_image", "Copy image"],
                     icon = Icons.Rounded.ContentCopy,
                     accent = true,
                     enabled = drawn != null,

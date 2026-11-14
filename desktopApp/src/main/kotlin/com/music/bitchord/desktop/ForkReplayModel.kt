@@ -47,9 +47,9 @@ internal object ForkReplayText {
     private fun count(value: Int, one: String, other: String): String =
         if (value == 1) "1 $one" else "${grouped(value.toLong())} $other"
 
-    fun plays(value: Int) = count(value, "play", "plays")
-    fun songs(value: Int) = count(value, "song", "songs")
-    fun artists(value: Int) = count(value, "artist", "artists")
+    fun plays(value: Int) = count(value, DesktopStrings["d_play_word_one", "play"], DesktopStrings["d_play_word_other", "plays"])
+    fun songs(value: Int) = count(value, DesktopStrings["d_song_word_one", "song"], DesktopStrings["d_song_word_other", "songs"])
+    fun artists(value: Int) = count(value, DesktopStrings["d_artist_word_one", "artist"], DesktopStrings["d_artist_word_other", "artists"])
 
     /** The minutes card's figure, always minutes, always grouped (phone `formatMinutes`). */
     fun minutes(ms: Long): String = grouped(ms / 60_000L)

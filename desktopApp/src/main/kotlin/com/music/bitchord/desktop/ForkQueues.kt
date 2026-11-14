@@ -315,16 +315,16 @@ internal fun ForkSavedQueuesDrawer(onClose: () -> Unit) {
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = { Text(DesktopStrings["d_name", "Name"]) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = { if (ForkQueues.saveCurrent(name)) name = "" }) { Text("Save this queue") }
+            TextButton(onClick = { if (ForkQueues.saveCurrent(name)) name = "" }) { Text(DesktopStrings["d_save_this_queue", "Save this queue"]) }
         }
         if (saved.isEmpty()) {
             Text(
-                "No saved queues. Save this one to come back to it later, from the same song and second.",
+                DesktopStrings["d_no_saved_queues", "No saved queues. Save this one to come back to it later, from the same song and second."],
                 style = MaterialTheme.typography.bodySmall,
                 color = DesktopSecondary,
             )
@@ -351,8 +351,8 @@ internal fun ForkSavedQueuesDrawer(onClose: () -> Unit) {
                     TextButton(onClick = {
                         ForkQueues.play(queue)
                         onClose()
-                    }) { Text("Play") }
-                    TextButton(onClick = { ForkQueues.delete(queue.id) }) { Text("Delete") }
+                    }) { Text(DesktopStrings["d_play", "Play"]) }
+                    TextButton(onClick = { ForkQueues.delete(queue.id) }) { Text(DesktopStrings["d_delete", "Delete"]) }
                 }
             }
         }

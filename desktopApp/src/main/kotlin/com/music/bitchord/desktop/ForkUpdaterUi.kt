@@ -90,7 +90,7 @@ internal object ForkUpdateFlow {
         val info = result.getOrNull()
         when {
             result.isFailure -> {
-                if (manual) checkState.value = CheckState.Failed(result.exceptionOrNull()?.message ?: "no connection")
+                if (manual) checkState.value = CheckState.Failed(result.exceptionOrNull()?.message ?: DesktopStrings["d_no_connection", "no connection"])
                 DesktopTrackLog.log("update: check failed: ${result.exceptionOrNull()?.message}")
             }
             info == null -> if (manual) checkState.value = CheckState.UpToDate
@@ -147,8 +147,8 @@ internal object ForkUpdateFlow {
     /** How long "Install now" waits for the app to close before it says so and offers the way out. */
     const val QUIT_GRACE_MS = 20_000L
 
-    const val QUIT_STALLED =
-        "Sigui didn't close by itself. Close it now to finish the update (the queue may not be saved), or quit it later: the update goes on once it is closed."
+    val QUIT_STALLED: String get() = // Sigui: a getter, so it follows the app's language
+        DesktopStrings["d_update_quit_stalled", "Sigui didn't close by itself. Close it now to finish the update (the queue may not be saved), or quit it later: the update goes on once it is closed."]
 
     /**
      * "Close now" after a quit that hung: the normal quit already failed to end the process, so
@@ -249,14 +249,14 @@ internal fun ForkUpdaterHost() {
                     is ForkUpdateFlow.Phase.Ready -> {
                         Text(DesktopStrings.format("update_ready_body", label, fallback = "bitchord %1\$s is ready to install."))
                         Text(
-                            "Sigui closes, swaps its program files (your settings and data stay) and opens again.",
+                            DesktopStrings["d_update_how", "Sigui closes, swaps its program files (your settings and data stay) and opens again."],
                             style = MaterialTheme.typography.bodySmall,
                             color = DesktopSecondary,
                             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                         )
                     }
                     ForkUpdateFlow.Phase.Installing -> {
-                        Text("Closing Sigui to update…")
+                        Text(DesktopStrings["d_update_closing", "Closing Sigui to update…"])
                         Spacer(Modifier.height(12.dp))
                     }
                     ForkUpdateFlow.Phase.QuitStalled -> {
@@ -288,7 +288,7 @@ internal fun ForkUpdaterHost() {
                 is ForkUpdateFlow.Phase.Ready -> TextButton(onClick = { ForkUpdateFlow.install(scope) }) { Text(DesktopStrings["install_now", "Install now"]) }
                 is ForkUpdateFlow.Phase.Failed -> TextButton(onClick = { ForkUpdateFlow.download(scope) }) { Text(DesktopStrings["try_again", "Try again"]) }
                 ForkUpdateFlow.Phase.Installing -> Unit
-                ForkUpdateFlow.Phase.QuitStalled -> TextButton(onClick = ForkUpdateFlow::forceClose) { Text("Close now") }
+                ForkUpdateFlow.Phase.QuitStalled -> TextButton(onClick = ForkUpdateFlow::forceClose) { Text(DesktopStrings["d_close_now", "Close now"]) }
             }
         },
         dismissButton = {
@@ -316,17 +316,17 @@ internal fun ForkAboutSettingsGroup() {
     SettingsGroup(DesktopStrings["about", "About"]) {
         val version = DesktopUpdateChecker.currentVersion
         ForkAboutRow(
-            "Version",
+            DesktopStrings["d_version", "Version"],
             if (ForkUpdater.currentBuild > 0) "$version, build ${ForkUpdater.currentBuild}" else "$version, local build",
             onClick = null,
         )
         ForkAboutRow(
-            "Check for updates",
+            DesktopStrings["d_check_for_updates", "Check for updates"],
             when (val s = state) {
-                ForkUpdateFlow.CheckState.Idle -> "Checked at start and every 12 hours"
-                ForkUpdateFlow.CheckState.Checking -> "Checking…"
-                ForkUpdateFlow.CheckState.UpToDate -> "Sigui is up to date"
-                is ForkUpdateFlow.CheckState.Found -> "Sigui ${s.label} is available"
+                ForkUpdateFlow.CheckState.Idle -> DesktopStrings["d_update_idle", "Checked at start and every 12 hours"]
+                ForkUpdateFlow.CheckState.Checking -> DesktopStrings["d_checking", "Checking…"]
+                ForkUpdateFlow.CheckState.UpToDate -> DesktopStrings["d_up_to_date", "Sigui is up to date"]
+                is ForkUpdateFlow.CheckState.Found -> DesktopStrings.format("d_update_found", s.label, fallback = "Sigui %1\$s is available")
                 is ForkUpdateFlow.CheckState.Failed -> "Couldn’t check for updates: ${s.message}"
             },
             onClick = {

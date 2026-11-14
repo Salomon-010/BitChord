@@ -1522,7 +1522,7 @@ fun BitChordDesktopApp() {
                             // Only what this request itself establishes: an unseeded playlist gets
                             // a card of just its name rather than a guess at what the feed will
                             // call it.
-                            subtitle = if (seed != null) "1 song" else "",
+                            subtitle = if (seed != null) forkSongCount(1) else "",
                             thumbnailUrl = seed?.thumbnailUrl,
                             videoId = null,
                             browseId = "VL$playlistId",
@@ -6414,7 +6414,7 @@ private fun DesktopSettingsScreen(
                         Icons.Rounded.Bedtime,
                         DesktopStrings["d_sleep_timer", "Sleep timer"],
                         when {
-                            sleepRemainingMs != null -> "${formatSleepTimer(sleepRemainingMs)} until playback pauses"
+                            sleepRemainingMs != null -> DesktopStrings.format("d_sleep_remaining", formatSleepTimer(sleepRemainingMs), fallback = "%1\$s until playback pauses")
                             sleepAfterTrack -> DesktopStrings["d_sleep_after_track", "Pausing when this song ends"]
                             else -> DesktopStrings["d_sleep_timer_subtitle", "Pause playback after a while"]
                         },
@@ -6628,11 +6628,11 @@ private fun DesktopSettingsScreen(
                                             else DesktopStrings["d_needs_windows_22h2", "Needs Windows 11 version 22H2 or later"]
                                         backdropChoice == DesktopBackdrop.MICA ->
                                             if (DesktopPlatform.isMac) "A subtle blur of your desktop wallpaper"
-                                            else "A soft tint taken from your wallpaper"
+                                            else DesktopStrings["d_wallpaper_tint_subtitle", "A soft tint taken from your wallpaper"]
                                         backdropChoice == DesktopBackdrop.TINT -> // fork
                                             DesktopStrings["d_solid_wallpaper_tint", "Solid, with a little of your wallpaper's colour"]
                                         backdropChoice == DesktopBackdrop.ACRYLIC ->
-                                            "A frosted blur of whatever is behind the window"
+                                            DesktopStrings["d_acrylic_subtitle", "A frosted blur of whatever is behind the window"]
                                         else -> DesktopStrings["d_solid", "Solid, as the rest of the app"]
                                     },
                                     color = DesktopSecondary,
@@ -7296,7 +7296,7 @@ private fun DesktopCollectionPage(
         BrowseType.ALBUM -> "Album"
         BrowseType.PLAYLIST -> "Playlist"
         BrowseType.ARTIST -> DesktopStrings["d_type_artist", "Artist"]
-        BrowseType.OTHER -> "Collection"
+        BrowseType.OTHER -> DesktopStrings["d_type_collection", "Collection"]
     }
     val metadata = buildList {
         add(typeLabel.uppercase())
@@ -7825,11 +7825,11 @@ private fun AutomixPerformanceMode.label(): String = when (this) {
 /** Android's description of each rung. */
 private fun AutomixPerformanceMode.detail(): String = when (this) {
     AutomixPerformanceMode.EFFICIENT ->
-        "1 thread · lowest heat and battery use · analysis may take longer"
+        DesktopStrings["d_automix_efficient_detail", "1 thread · lowest heat and battery use · analysis may take longer"]
     AutomixPerformanceMode.BALANCED ->
-        "2 threads · recommended balance of speed, heat and battery"
+        DesktopStrings["d_automix_balanced_detail", "2 threads · recommended balance of speed, heat and battery"]
     AutomixPerformanceMode.PERFORMANCE ->
-        "4 threads · fastest analysis · higher heat and battery use"
+        DesktopStrings["d_automix_performance_detail", "4 threads · fastest analysis · higher heat and battery use"]
 }
 
 /** Chip label for an Apple-style Automix phrase length, in bars; 0 is the adaptive default. */
@@ -7857,11 +7857,11 @@ private fun phraseBarsDetail(bars: Int): String = when (bars) {
 
 /** Android's wording for the Automix line, so both players read alike. */
 private fun TrackAnalysisState.label(): String = when (this) {
-    TrackAnalysisState.ANALYSED -> "analysed"
-    TrackAnalysisState.REFINING -> "analysed, refining…"
-    TrackAnalysisState.ANALYSING -> "analysing…"
-    TrackAnalysisState.WAITING -> "waiting"
-    TrackAnalysisState.FAILED -> "failed"
+    TrackAnalysisState.ANALYSED -> DesktopStrings["d_analysis_done", "analysed"]
+    TrackAnalysisState.REFINING -> DesktopStrings["d_analysis_refining", "analysed, refining…"]
+    TrackAnalysisState.ANALYSING -> DesktopStrings["d_analysis_running", "analysing…"]
+    TrackAnalysisState.WAITING -> DesktopStrings["d_analysis_waiting", "waiting"]
+    TrackAnalysisState.FAILED -> DesktopStrings["d_analysis_failed", "failed"]
 }
 
 @Composable
@@ -8419,7 +8419,7 @@ private fun formatCollectionDuration(totalSeconds: Long): String {
     return if (minutes < 60L) {
         "$minutes min"
     } else {
-        "${minutes / 60L} hr ${minutes % 60L} min"
+        DesktopStrings.format("d_hours_minutes", minutes / 60L, minutes % 60L, fallback = "%1\$d hr %2\$d min")
     }
 }
 

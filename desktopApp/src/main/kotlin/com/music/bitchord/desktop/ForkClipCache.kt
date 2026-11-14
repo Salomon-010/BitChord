@@ -134,8 +134,8 @@ internal fun ForkClipCacheRows() {
     val mb by ForkNavidromeSettings.clipCacheMb.collectAsState()
     SettingsRow(
         Icons.Rounded.VideoLibrary,
-        "Video clip cache",
-        "Disk space for cover clips and backdrops (click to change): ${formatCacheSize(mb)}",
+        DesktopStrings["d_video_clip_cache", "Video clip cache"],
+        DesktopStrings.format("d_video_clip_cache_subtitle", formatCacheSize(mb), fallback = "Disk space for cover clips and backdrops (click to change): %1\$s"),
     ) {
         val choices = ForkNavidromeSettings.CLIP_CACHE_CHOICES_MB
         ForkNavidromeSettings.setClipCacheMb(choices[(choices.indexOf(mb) + 1) % choices.size])
@@ -151,7 +151,7 @@ private fun ForkClearClipsRow(kind: ForkClipCache.Kind, title: String) {
     val scope = rememberCoroutineScope()
     val cleared by ForkClipCache.cleared.collectAsState()
     val bytes by produceState(0L, cleared) { value = ForkClipCache.size(kind) }
-    SettingsRow(Icons.Rounded.DeleteSweep, title, "${forkClipSize(bytes)} on this PC") {
+    SettingsRow(Icons.Rounded.DeleteSweep, title, DesktopStrings.format("d_size_on_this_pc", forkClipSize(bytes), fallback = "%1\$s on this PC")) {
         scope.launch { ForkClipCache.clear(kind) }
     }
 }

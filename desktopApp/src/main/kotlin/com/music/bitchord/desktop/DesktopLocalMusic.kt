@@ -49,7 +49,7 @@ object DesktopLocalMusic {
     }
 
     /** What the Local Music settings row says underneath its title. */
-    fun folderLabel(): String = folder()?.fileName?.toString() ?: "All audio folders"
+    fun folderLabel(): String = folder()?.fileName?.toString() ?: DesktopStrings["d_all_audio_folders", "All audio folders"]
 
     internal const val KEY_LOCAL_MUSIC_FOLDER = "local_music_folder"
 

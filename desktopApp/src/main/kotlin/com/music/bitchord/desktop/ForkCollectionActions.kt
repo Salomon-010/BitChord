@@ -118,7 +118,7 @@ internal object ForkCollectionActions {
             val slotsLeft = (DesktopPartySync.MAX_PARTY_UPCOMING_QUEUE - current.upcoming.size).coerceAtLeast(0)
             if (slotsLeft == 0) {
                 DesktopPlayerHost.showMessage(
-                    "Queue is full (maximum ${DesktopPartySync.MAX_PARTY_UPCOMING_QUEUE} songs in party)",
+                    DesktopStrings.format("d_party_queue_full", DesktopPartySync.MAX_PARTY_UPCOMING_QUEUE, fallback = "Queue is full (maximum %1\$d songs in party)"),
                 )
                 return
             }
@@ -130,10 +130,10 @@ internal object ForkCollectionActions {
         val n = toAdd.size
         ForkNotice.show(
             when {
-                next && n == 1 -> "1 song will play next"
-                next -> "$n songs will play next"
-                n == 1 -> "Added 1 song to the queue"
-                else -> "Added $n songs to the queue"
+                next && n == 1 -> DesktopStrings["d_play_next_one", "1 song will play next"]
+                next -> DesktopStrings.format("d_play_next_other", n, fallback = "%1\$d songs will play next")
+                n == 1 -> DesktopStrings["d_added_to_queue_one", "Added 1 song to the queue"]
+                else -> DesktopStrings.format("d_added_to_queue_other", n, fallback = "Added %1\$d songs to the queue")
             },
         )
     }

@@ -842,7 +842,7 @@ internal object DesktopListenTogether {
         if (cleanCode(code) in recentKicks()) {
             throw PartyException(
                 "recently_kicked",
-                "Couldn't let you in — you've recently been removed from this party.",
+                DesktopStrings["d_party_recently_kicked", "Couldn't let you in — you've recently been removed from this party."],
             )
         }
     }

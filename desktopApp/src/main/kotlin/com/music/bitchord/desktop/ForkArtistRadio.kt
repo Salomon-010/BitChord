@@ -51,14 +51,14 @@ internal fun ForkArtistRadioButton(browseId: String, onPlay: (List<Song>) -> Uni
         // and a second press meanwhile doesn't ask again.
         if (loading) return@DesktopCircleButton
         loading = true
-        ForkNotice.show("Starting $name radio…")
+        ForkNotice.show(DesktopStrings.format("d_starting_radio", name, fallback = "Starting %1\$s radio…"))
         scope.launch {
             NavidromeArtistInfo.radio(name)
                 .onSuccess { songs ->
-                    if (songs.isEmpty()) ForkNotice.show("No similar songs found") else onPlay(songs)
+                    if (songs.isEmpty()) ForkNotice.show(DesktopStrings["d_no_similar_songs", "No similar songs found"]) else onPlay(songs)
                     DesktopTrackLog.log("radio: ${songs.size} similar songs for the artist '$name'")
                 }
-                .onFailure { ForkNotice.show("Couldn't load tracks") }
+                .onFailure { ForkNotice.show(DesktopStrings["d_tracks_load_failed", "Couldn't load tracks"]) }
             loading = false
         }
     })

@@ -317,7 +317,7 @@ internal object ForkYtDlp {
             val url = ran?.takeIf { it.exit == 0 }?.out?.lineSequence()?.map(String::trim)?.firstOrNull { it.startsWith("https://") }
             if (url == null) {
                 failed[key] = System.currentTimeMillis() + FAILED_MS
-                val why = ran?.err?.lineSequence()?.map(String::trim)?.lastOrNull { it.isNotEmpty() }?.take(160) ?: "did not run"
+                val why = ran?.err?.lineSequence()?.map(String::trim)?.lastOrNull { it.isNotEmpty() }?.take(160) ?: DesktopStrings["d_did_not_run", "did not run"]
                 DesktopTrackLog.log("  yt-dlp: no stream for '${song.title}' ($why); the built-in resolver takes it")
                 return@withPermit null
             }
@@ -400,7 +400,7 @@ internal object ForkYtDlp {
         return processes.withPermit {
             runCatching { exec(listOf(exe, "-U"), UPDATE_TIMEOUT_MS) }.fold(
                 onSuccess = { (it.out + "\n" + it.err).trim().ifBlank { "yt-dlp exited with ${it.exit}" } },
-                onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it; it.message ?: "yt-dlp could not run" },
+                onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it; it.message ?: DesktopStrings["d_ytdlp_could_not_run", "yt-dlp could not run"] },
             )
         }
     }

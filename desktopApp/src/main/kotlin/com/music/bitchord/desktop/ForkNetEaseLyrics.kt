@@ -61,7 +61,7 @@ internal object ForkNetEaseLyrics {
 
     private val source = DesktopLyricsClient.Source(
         name = LABEL,
-        detail = "Word-by-word timing from NetEase Cloud Music (PC only)",
+        detail = DesktopStrings["d_netease_detail", "Word-by-word timing from NetEase Cloud Music (PC only)"],
         wordSynced = true,
     )
 

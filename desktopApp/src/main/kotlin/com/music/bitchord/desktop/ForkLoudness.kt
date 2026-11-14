@@ -79,9 +79,9 @@ internal object ForkLoudness {
         val youtube = runCatching { StreamResolver.loudnessDbFor(song.videoId) }.getOrNull()?.takeIf { it.isFinite() }
         val db = ForkLoudnessMath.gainDb(server, youtube, null)
         val from = when {
-            server != null -> "Server ReplayGain"
-            youtube != null -> "YouTube loudness"
-            else -> "No figure"
+            server != null -> DesktopStrings["d_loudness_server", "Server ReplayGain"]
+            youtube != null -> DesktopStrings["d_loudness_youtube", "YouTube loudness"]
+            else -> DesktopStrings["d_loudness_none", "No figure"]
         }
         return db to from
     }

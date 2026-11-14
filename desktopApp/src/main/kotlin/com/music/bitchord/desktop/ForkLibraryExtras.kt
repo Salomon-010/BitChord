@@ -119,7 +119,7 @@ internal fun ForkLibrarySaveButton(browseId: String) {
                 val ok = withContext(Dispatchers.IO) { YtMusicRepository.setSaved(shown.playlistId, target).isSuccess }
                 if (!ok) {
                     state = shown
-                    ForkNotice.show(if (target) "Couldn't add to library" else "Couldn't remove from library")
+                    ForkNotice.show(if (target) DesktopStrings["d_library_add_failed", "Couldn't add to library"] else DesktopStrings["d_library_remove_failed", "Couldn't remove from library"])
                 }
             }
         },

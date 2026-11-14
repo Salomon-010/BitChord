@@ -195,10 +195,10 @@ internal fun ForkOfflineButton(id: String, title: String, subtitle: String, cove
     val estimate = remember(id, songs, pages, swept) { NavidromeOffline.estimate(songs) }
     val label = when {
         running != null -> "${(running * 100).toInt()}%"
-        kept && missing > 0 -> "Kept ${pages[id]!!.songs.size - missing} of ${pages[id]!!.songs.size} · ${sizeText(bytes)} · keep the rest"
-        kept -> "Kept · ${sizeText(bytes)} · remove"
-        estimate != null -> "Available offline · ${sizeText(estimate)}"
-        else -> "Available offline"
+        kept && missing > 0 -> DesktopStrings.format("d_kept_partly", pages[id]!!.songs.size - missing, pages[id]!!.songs.size, sizeText(bytes), fallback = "Kept %1\$d of %2\$d · %3\$s · keep the rest")
+        kept -> DesktopStrings.format("d_kept", sizeText(bytes), fallback = "Kept · %1\$s · remove")
+        estimate != null -> DesktopStrings.format("d_available_offline_size", sizeText(estimate), fallback = "Available offline · %1\$s")
+        else -> DesktopStrings["d_available_offline", "Available offline"]
     }
     TextButton(
         onClick = {
@@ -232,12 +232,12 @@ internal fun ForkOfflineControls(onOpenPage: (String) -> Unit) {
     val pages by NavidromeOffline.pages.collectAsState()
     var listing by remember { mutableStateOf(false) }
     if (offline && !switched) {
-        Text("Server not answering: music on this PC only", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        Text(DesktopStrings["d_server_not_answering", "Server not answering: music on this PC only"], style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         Spacer(Modifier.width(16.dp))
     }
-    TextButton(onClick = { listing = true }) { Text("Available offline · ${pages.size}", style = MaterialTheme.typography.bodySmall) }
+    TextButton(onClick = { listing = true }) { Text(DesktopStrings.format("d_available_offline_count", pages.size, fallback = "Available offline · %1\$d"), style = MaterialTheme.typography.bodySmall) }
     Spacer(Modifier.width(8.dp))
-    Text("Offline mode", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(DesktopStrings["d_offline_mode", "Offline mode"], style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Spacer(Modifier.width(8.dp))
     Switch(checked = switched, onCheckedChange = ForkOffline::setMode)
     if (listing) {
@@ -261,10 +261,10 @@ private fun ForkOfflineList(onOpen: (String) -> Unit, onDismiss: () -> Unit) {
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Available offline") },
+        title = { Text(DesktopStrings["d_available_offline", "Available offline"]) },
         text = {
             if (rows.isEmpty()) {
-                Text("Nothing kept yet. Keep an album or playlist from its page.")
+                Text(DesktopStrings["d_nothing_kept", "Nothing kept yet. Keep an album or playlist from its page."])
             } else {
                 LazyColumn(Modifier.heightIn(max = 420.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     items(rows, key = { it.id }) { page ->
@@ -279,15 +279,15 @@ private fun ForkOfflineList(onOpen: (String) -> Unit, onDismiss: () -> Unit) {
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            TextButton(onClick = { NavidromeOffline.remove(page.id) }) { Text("Remove") }
+                            TextButton(onClick = { NavidromeOffline.remove(page.id) }) { Text(DesktopStrings["d_remove", "Remove"]) }
                         }
                     }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(DesktopStrings["d_close", "Close"]) } },
         dismissButton = if (rows.size > 1) {
-            { TextButton(onClick = { NavidromeOffline.removeAll() }) { Text("Remove all") } }
+            { TextButton(onClick = { NavidromeOffline.removeAll() }) { Text(DesktopStrings["d_remove_all", "Remove all"]) } }
         } else {
             null
         },

@@ -28,7 +28,7 @@ internal fun ForkOfflineBar(compact: Boolean) {
     if (!offline || url.isBlank() || user.isBlank()) return
     ForkOfflineStrip(
         visible = true,
-        message = if (byHand) "Offline mode: music on this computer only" else "Server not reachable: music on this computer only",
+        message = if (byHand) DesktopStrings["d_offline_mode_bar", "Offline mode: music on this computer only"] else DesktopStrings["d_server_unreachable_bar", "Server not reachable: music on this computer only"],
         actionLabel = if (byHand) "Go online" else null,
         onAction = { ForkOffline.setMode(false) },
         modifier = if (compact) Modifier.widthIn(max = 440.dp) else Modifier, // the mini player's width

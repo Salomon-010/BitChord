@@ -25,8 +25,8 @@ import com.music.bitchord.playback.smart.AutomixStyle
  */
 @Composable
 internal fun ForkAutomixStyleSetting() {
-    val title = "Automix style"
-    val subtitle = "Sigui's own mixes, or the YouTube Music extension's AutoDJ"
+    val title = DesktopStrings["d_automix_style", "Automix style"]
+    val subtitle = DesktopStrings["d_automix_style_subtitle", "Sigui's own mixes, or the YouTube Music extension's AutoDJ"]
     val style by ForkDesktopAutomixStyle.style.collectAsState()
     if (settingsRowVisible(title, subtitle)) Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
         Text(title, fontWeight = FontWeight.Medium)
@@ -49,8 +49,8 @@ internal fun ForkAutomixStyleSetting() {
     val keyAware by ForkDesktopAutomixStyle.keyAware.collectAsState()
     ForkDisabledWhen(style != AutomixStyle.ADVANCED) {
         SettingsToggle(
-            "Shorter blend when keys clash",
-            "Automix, Advanced AutoDJ style: songs whose keys don't mix get a 2-bar blend (4 when that would be very short), as in the extension",
+            DesktopStrings["d_shorter_blend_keys", "Shorter blend when keys clash"],
+            DesktopStrings["d_shorter_blend_keys_subtitle", "Automix, Advanced AutoDJ style: songs whose keys don't mix get a 2-bar blend (4 when that would be very short), as in the extension"],
             keyAware,
             ForkDesktopAutomixStyle::setKeyAware,
         )
@@ -58,9 +58,9 @@ internal fun ForkAutomixStyleSetting() {
 }
 
 private fun detail(style: AutomixStyle): String = when (style) {
-    AutomixStyle.BITCHORD -> "Sigui's own Automix"
+    AutomixStyle.BITCHORD -> DesktopStrings["d_automix_style_own", "Sigui's own Automix"]
     AutomixStyle.ORIGINAL ->
-        "The extension's Automix: phrase-aligned blends ending with the song, a bass swap and a high-shelf cross, tempo only ever sped up"
+        DesktopStrings["d_automix_style_original", "The extension's Automix: phrase-aligned blends ending with the song, a bass swap and a high-shelf cross, tempo only ever sped up"]
     AutomixStyle.ADVANCED ->
-        "The extension's Advanced AutoDJ: the same planner, cut to where the music ends, blends moved off two singers at once, DJ fader and filter shapes"
+        DesktopStrings["d_automix_style_advanced", "The extension's Advanced AutoDJ: the same planner, cut to where the music ends, blends moved off two singers at once, DJ fader and filter shapes"]
 }

@@ -204,11 +204,11 @@ internal fun ForkAudioPipelineDialog(
                     )
                     ForkPipelineRow(
                         DesktopStrings["pipeline_type", "Type"],
-                        when { !known -> null; pipeline.resampling -> "Rate conversion"; else -> "None" },
+                        when { !known -> null; pipeline.resampling -> DesktopStrings["d_rate_conversion", "Rate conversion"]; else -> DesktopStrings["d_none", "None"] },
                     )
                     ForkPipelineRow(
                         DesktopStrings["pipeline_quality", "Quality"],
-                        when { !known -> null; pipeline.resampling -> "Resampled"; else -> "Passthrough" },
+                        when { !known -> null; pipeline.resampling -> DesktopStrings["d_resampled", "Resampled"]; else -> DesktopStrings["d_passthrough", "Passthrough"] },
                     )
                 }
 
@@ -234,7 +234,7 @@ internal fun ForkAudioPipelineDialog(
                 }
 
                 ForkPipelineSection(4, Icons.AutoMirrored.Rounded.VolumeUp, DesktopStrings["pipeline_output_device", "Output device"], columnCoordinates, stageActivation, onStageIconPositioned) {
-                    ForkPipelineRow(DesktopStrings["pipeline_device_name", "Device name"], pipeline.deviceName ?: "System default")
+                    ForkPipelineRow(DesktopStrings["pipeline_device_name", "Device name"], pipeline.deviceName ?: DesktopStrings["d_system_default", "System default"])
                     ForkPipelineRow(DesktopStrings["pipeline_output_api", "Output API"], pipeline.outputApi) // was "javax.sound" whatever the sink used
                     ForkPipelineRow(
                         DesktopStrings["pipeline_pcm_format", "PCM format"],
