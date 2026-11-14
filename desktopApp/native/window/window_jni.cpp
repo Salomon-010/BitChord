@@ -13,9 +13,13 @@
 #include <spatialaudioclient.h> // fork: Windows Spatial Sound (fork_spatial_audio.h)
 #include <windowsx.h>
 
+#include <avrt.h> // fork: the exclusive render thread's "Pro Audio" priority (fork_exclusive_audio.h)
 #include <algorithm>
 #include <atomic>
+#include <chrono> // fork: fork_exclusive_audio.h
 #include <cmath>
+#include <condition_variable> // fork: fork_exclusive_audio.h
+#include <thread> // fork: fork_exclusive_audio.h
 #include <cstdint>
 #include <cwchar>
 #include <cwctype>
@@ -1404,9 +1408,7 @@ Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeWrite(JNIEnv* env, jcl
 
 JNIEXPORT jlong JNICALL
 Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeFramesPlayed(JNIEnv*, jclass) {
-    std::lock_guard<std::mutex> guard(g_audio_mutex);
-    ComScope com;
-    return static_cast<jlong>(fork_ex_played_locked());
+    return static_cast<jlong>(fork_ex_played());
 }
 
 JNIEXPORT void JNICALL

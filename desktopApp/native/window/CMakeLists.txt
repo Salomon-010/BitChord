@@ -28,7 +28,7 @@ if(CMAKE_CROSSCOMPILING AND WIN32)
     target_include_directories(bitchord_window PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../win32)
 endif()
 
-target_link_libraries(bitchord_window PRIVATE user32 dwmapi ole32 uuid)
+target_link_libraries(bitchord_window PRIVATE user32 dwmapi ole32 uuid avrt) # fork: avrt, the exclusive render thread's MMCSS priority
 
 if(MINGW)
     # The desktop app loads this DLL from its private runtime directory. Gradle daemons and
