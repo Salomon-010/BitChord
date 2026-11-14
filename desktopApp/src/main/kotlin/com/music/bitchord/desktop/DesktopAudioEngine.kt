@@ -3404,7 +3404,7 @@ class DesktopPlaybackEngine(
 
     // ---- output precision ------------------------------------------------
 
-    @Volatile private var preferFloat = false
+    @Volatile private var preferFloat = ForkAudioDefaults.OUTPUT_PRECISION == "FLOAT_32" // fork: was false, the app's default before setOutputPrecision
     @Volatile private var spatialEnabled = false
 
     @Volatile private var equalizerEnabled = false

@@ -682,7 +682,7 @@ fun BitChordDesktopApp() {
     var spatialAudio by remember { mutableStateOf(persistence.boolean("spatial_audio", false)) }
     var dolbyAtmos by remember { mutableStateOf(persistence.boolean("dolby_atmos", true)) }
     var skipSilence by remember { mutableStateOf(persistence.boolean("skip_silence", false)) }
-    var outputPrecision by remember { mutableStateOf(persistence.string("output_precision", "PCM_16")) }
+    var outputPrecision by remember { mutableStateOf(persistence.string("output_precision", ForkAudioDefaults.OUTPUT_PRECISION)) } // fork: was "PCM_16"; a saved choice is kept
     // fork: the blob backdrop's switch became v1.9.1's Player theme (ForkPlayerTheme)
     var animatedCanvas by remember { mutableStateOf(persistence.boolean("animated_canvas", true)) }
     var spotifyCanvasCookie by remember { mutableStateOf(DesktopSpotifyToken.cookie()) }

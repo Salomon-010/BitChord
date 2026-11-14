@@ -21,6 +21,10 @@ internal class DesktopAudioSink {
     /** Reused conversion buffer; only the playback thread touches it. */
     private var staging = ByteArray(0)
 
+    /** Fork: 16-bit output rounded with TPDF dither, not truncated ([ForkPcm16Quantizer]). */
+    private val forkPcm16 = ForkPcm16Quantizer()
+    private var forkGrid = FloatArray(0) // fork: the WASAPI 16-bit line's samples, already on the 16-bit grid
+
     /** Kept short: enough to distinguish real samples from a pipeline producing silence. */
     private var diagnosticBlocks = 0
 
@@ -201,6 +205,15 @@ internal class DesktopAudioSink {
             }
         }
         if (windowsOutput) {
+            // fork: a 16-bit line gets its samples rounded and dithered here, volume included, and the native
+            // side only scales them back by 32768 (exact); was DesktopWindowsAudio.write(samples, count, gain)
+            if (!format.isFloat && format.bytesPerSample == 2 && count > 0) {
+                if (forkGrid.size < count) forkGrid = FloatArray(count)
+                forkPcm16.toGrid(samples, count, gain, forkGrid)
+                val written = DesktopWindowsAudio.write(forkGrid, count, 1f)
+                diagnose(samples, count, written)
+                return written
+            }
             val written = DesktopWindowsAudio.write(samples, count, gain)
             diagnose(samples, count, written)
             return written
@@ -243,13 +256,9 @@ internal class DesktopAudioSink {
                 val scaled = (samples[index] * volume).coerceIn(-1f, 1f)
                 writeIntLe(out, index * 4, (scaled * Int.MAX_VALUE).toInt())
             }
-            else -> for (index in 0 until count) {
-                val scaled = (samples[index] * volume).coerceIn(-1f, 1f)
-                val value = (scaled * 32_767f).toInt()
-                val at = index * 2
-                out[at] = value.toByte()
-                out[at + 1] = (value shr 8).toByte()
-            }
+            // fork: rounded with TPDF dither, a 16-bit file at unity gain unchanged (ForkPcm16Quantizer);
+            // was (x * volume).coerceIn(-1f, 1f) * 32_767f truncated
+            else -> forkPcm16.toBytes(samples, count, volume, out)
         }
         return out
     }

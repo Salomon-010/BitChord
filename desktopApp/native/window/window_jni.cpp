@@ -978,7 +978,10 @@ int write_audio(const float* samples, int sample_count, float gain) {
             auto* output = reinterpret_cast<int16_t*>(target);
             for (size_t index = 0; index < values; ++index) {
                 const float value = std::clamp(samples[first + index] * gain, -1.0f, 1.0f);
-                output[index] = static_cast<int16_t>(value * 32767.0f);
+                // fork: Kotlin hands this line samples already rounded and dithered onto the 16-bit grid
+                // (ForkPcm16Quantizer, gain 1), so scaling by 32768 gives each value back exactly; was
+                // static_cast<int16_t>(value * 32767.0f), which truncated and moved every sample a step toward zero
+                output[index] = static_cast<int16_t>(std::clamp(std::lrint(value * 32768.0f), -32768L, 32767L));
             }
         } else {
             auto* output = reinterpret_cast<int32_t*>(target);
