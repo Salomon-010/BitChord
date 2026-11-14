@@ -43,7 +43,7 @@ object AppUpdateChecker {
     private const val CACHE_SUBDIR = "updates"
 
     private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/ayhamo/BitChord/releases/latest" // fork: this fork's releases (fork-v<version>)
+        "https://api.github.com/repos/Salomon-010/BitChord/releases/latest" // Sigui: its own releases (fork-v<version>), never ayhamo/BitChord's
 
     private val json = Json { ignoreUnknownKeys = true }
 

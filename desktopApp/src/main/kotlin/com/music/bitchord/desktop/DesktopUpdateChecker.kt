@@ -36,7 +36,7 @@ internal object DesktopUpdateChecker {
     )
 
     private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/ayhamo/BitChord/releases/latest" // fork: upstream no longer builds this app
+        "https://api.github.com/repos/Salomon-010/BitChord/releases/latest" // Sigui: its own releases, never ayhamo/BitChord's
 
     val currentVersion: String = System.getProperty("bitchord.version") ?: "1.8-beta1"
 
@@ -72,7 +72,7 @@ internal object DesktopUpdateChecker {
     }
 
     /** fork: the PC build's pre-releases, see [check]. */
-    private const val RELEASES_URL = "https://api.github.com/repos/ayhamo/BitChord/releases?per_page=20"
+    private const val RELEASES_URL = "https://api.github.com/repos/Salomon-010/BitChord/releases?per_page=20" // Sigui: its own fork-pc-v releases
     internal const val FORK_PC_TAG_PREFIX = "fork-pc-v"
 
     /** fork: the newest PC build among [releases] (GitHub's order, newest first) that is newer than [current]; drafts and the phone's releases skipped. */
