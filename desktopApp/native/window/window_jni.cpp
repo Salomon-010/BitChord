@@ -1100,6 +1100,7 @@ jobjectArray list_devices(JNIEnv* env) {
 }
 
 #include "fork_spatial_audio.h" // fork: Windows Spatial Sound output (ForkMultichannel)
+#include "fork_exclusive_audio.h" // fork: WASAPI exclusive mode (ForkExclusiveOutput)
 
 }  // namespace
 
@@ -1344,6 +1345,100 @@ Java_com_music_bitchord_desktop_ForkWindowsAudioLayout_nativeSpatialRate(JNIEnv*
     std::wstring wanted(reinterpret_cast<const wchar_t*>(chars), static_cast<size_t>(length));
     env->ReleaseStringChars(device, chars);
     return static_cast<jint>(fork_spatial_rate(wanted));
+}
+
+// fork (ForkExclusiveOutput): WASAPI exclusive mode (fork_exclusive_audio.h), bound to the fork class
+// ForkWasapiExclusive so DesktopWindowsAudio's own exports stay as they were.
+
+static std::wstring fork_ex_string(JNIEnv* env, jstring value) {
+    const jchar* chars = env->GetStringChars(value, nullptr);
+    const jsize length = env->GetStringLength(value);
+    std::wstring result(reinterpret_cast<const wchar_t*>(chars), static_cast<size_t>(length));
+    env->ReleaseStringChars(value, chars);
+    return result;
+}
+
+static jstring fork_ex_jstring(JNIEnv* env, const std::wstring& value) {
+    return env->NewString(reinterpret_cast<const jchar*>(value.c_str()), static_cast<jsize>(value.size()));
+}
+
+JNIEXPORT jbooleanArray JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeProbe(
+    JNIEnv* env, jclass, jstring device, jint channels, jintArray rates, jintArray containers, jintArray valids) {
+    if (g_vm == nullptr) env->GetJavaVM(&g_vm);
+    const jsize count = env->GetArrayLength(rates);
+    if (env->GetArrayLength(containers) != count || env->GetArrayLength(valids) != count) return nullptr;
+    std::vector<jint> r(static_cast<size_t>(count)), c(static_cast<size_t>(count)), v(static_cast<size_t>(count));
+    env->GetIntArrayRegion(rates, 0, count, r.data());
+    env->GetIntArrayRegion(containers, 0, count, c.data());
+    env->GetIntArrayRegion(valids, 0, count, v.data());
+    std::vector<int> ri(r.begin(), r.end()), ci(c.begin(), c.end()), vi(v.begin(), v.end());
+    const std::vector<bool> accepted = fork_ex_probe(
+        fork_ex_string(env, device), static_cast<int>(channels), ri.data(), ci.data(), vi.data(), static_cast<int>(count));
+    if (accepted.empty() && count > 0) return nullptr;
+    jbooleanArray result = env->NewBooleanArray(count);
+    std::vector<jboolean> flags(static_cast<size_t>(count));
+    for (jsize index = 0; index < count; ++index) flags[static_cast<size_t>(index)] = accepted[static_cast<size_t>(index)] ? JNI_TRUE : JNI_FALSE;
+    env->SetBooleanArrayRegion(result, 0, count, flags.data());
+    return result;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeOpen(
+    JNIEnv* env, jclass, jstring device, jint rate, jint channels, jint container_bits, jint valid_bits) {
+    if (g_vm == nullptr) env->GetJavaVM(&g_vm);
+    return static_cast<jint>(fork_ex_open(
+        fork_ex_string(env, device), static_cast<int>(rate), static_cast<int>(channels),
+        static_cast<int>(container_bits), static_cast<int>(valid_bits)));
+}
+
+JNIEXPORT jint JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeWrite(JNIEnv* env, jclass, jbyteArray bytes, jint frames) {
+    if (bytes == nullptr || frames <= 0) return 0;
+    jbyte* values = env->GetByteArrayElements(bytes, nullptr);
+    if (values == nullptr) return -1;
+    const int written = fork_ex_write(reinterpret_cast<const uint8_t*>(values), static_cast<int>(frames));
+    env->ReleaseByteArrayElements(bytes, values, JNI_ABORT);
+    return static_cast<jint>(written);
+}
+
+JNIEXPORT jlong JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeFramesPlayed(JNIEnv*, jclass) {
+    std::lock_guard<std::mutex> guard(g_audio_mutex);
+    ComScope com;
+    return static_cast<jlong>(fork_ex_played_locked());
+}
+
+JNIEXPORT void JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativePause(JNIEnv*, jclass, jboolean paused) {
+    fork_ex_pause(paused == JNI_TRUE);
+}
+
+JNIEXPORT void JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeFlush(JNIEnv*, jclass) {
+    fork_ex_flush();
+}
+
+JNIEXPORT void JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeDrain(JNIEnv*, jclass) {
+    fork_ex_drain();
+}
+
+JNIEXPORT void JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeClose(JNIEnv*, jclass) {
+    fork_ex_close();
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeDeviceName(JNIEnv* env, jclass) {
+    std::lock_guard<std::mutex> guard(g_audio_mutex);
+    return fork_ex_jstring(env, g_fork_ex_name);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_music_bitchord_desktop_ForkWasapiExclusive_nativeLastError(JNIEnv* env, jclass) {
+    std::lock_guard<std::mutex> guard(g_audio_mutex);
+    return fork_ex_jstring(env, g_fork_ex_error);
 }
 
 }  // extern "C"

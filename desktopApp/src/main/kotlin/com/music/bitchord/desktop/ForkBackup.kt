@@ -214,6 +214,7 @@ internal object ForkBackup {
         bool("sync_downloaded_playlists"), // "Keep playlists updated" (ForkPlaylistSync), the phone's own key
         bool("reduce_animation"), bool("reduce_dynamic_blur"), bool("show_listen_together_button"),
         bool("show_nerd_stats"), bool("show_queue_history"), bool("skip_silence"), bool("spatial_audio"),
+        bool(ForkExclusiveSetting.KEY), // "Exclusive mode (WASAPI)" (ForkExclusiveOutput)
         bool("spotify_canvas_auto_hide").defaults(pc = false, phone = true), bool("synced_lyrics"), text("translation_language"),
         bool(ForkSpotifyCanvasFirst.KEY), bool(ForkCachedSongs.KEY_SHOWN), // "Prioritize Spotify Canvas", "Show cached songs folder": the phone's keys
         named("last_player_screen", "last_player_screen", listOf("MAIN", "LYRICS", "QUEUE")),

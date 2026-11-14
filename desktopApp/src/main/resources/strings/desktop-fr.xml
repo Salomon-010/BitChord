@@ -229,6 +229,8 @@
     <string name="fork_backdrop_pulse">Pulsation de l’arrière-plan</string>
     <string name="fork_bass_glow">Halo sur les basses</string>
     <string name="fork_cover_fade">Fondu de la pochette</string>
+    <string name="fork_exclusive_mode">Mode exclusif (WASAPI)</string>
+    <string name="fork_exclusive_mode_subtitle">Envoie le son directement à l’appareil, sans le mixeur de Windows : la meilleure fréquence qu’il accepte, en 24 bits avec dither. Les autres applications ne peuvent pas l’utiliser pendant ce temps ; le mode partagé prend le relais si l’appareil refuse</string>
     <string name="fork_genius_looking">Recherche sur Genius…</string>
     <string name="fork_genius_meanings">Signification des titres sur Genius</string>
     <string name="fork_handoff_unreachable">Impossible de joindre le serveur</string>

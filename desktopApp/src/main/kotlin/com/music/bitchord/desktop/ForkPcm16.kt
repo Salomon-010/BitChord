@@ -31,20 +31,10 @@ internal object ForkAudioDefaults {
  */
 internal class ForkPcm16Quantizer(seed: Long = 0x2545F4914F6CDD1DL) {
 
-    private var state = if (seed == 0L) 1L else seed
+    private val quantizer = ForkPcmQuantizer(16, seed)
 
     /** [sample] × [gain] as a 16-bit value. */
-    fun quantize(sample: Float, gain: Float): Int {
-        val scaled = sample.toDouble() * gain * FULL_SCALE
-        if (scaled.isNaN()) return 0
-        val onGrid = scaled == floor(scaled)
-        val value = if (onGrid) scaled else floor(scaled + tpdf() + 0.5)
-        return when {
-            value >= MAX -> MAX.toInt()
-            value <= MIN -> MIN.toInt()
-            else -> value.toInt()
-        }
-    }
+    fun quantize(sample: Float, gain: Float): Int = quantizer.quantize(sample, gain)
 
     /** [count] samples × [gain] as little-endian 16-bit PCM into [out] (2 bytes a sample). */
     fun toBytes(samples: FloatArray, count: Int, gain: Float, out: ByteArray) {
@@ -64,6 +54,41 @@ internal class ForkPcm16Quantizer(seed: Long = 0x2545F4914F6CDD1DL) {
         for (index in 0 until count) out[index] = quantize(samples[index], gain) / FULL_SCALE.toFloat()
     }
 
+    companion object {
+        const val FULL_SCALE = 32_768.0
+    }
+}
+
+/**
+ * Fork: float samples to [bits]-bit integers (16 or 24), rounded with TPDF dither of ±1 step; a
+ * sample already on the grid is kept as it is, so a file of that depth at unity gain goes through
+ * unchanged. The rule [ForkPcm16Quantizer] states, for any depth; full scale clamped to
+ * −2^(bits−1)..2^(bits−1)−1. One instance per output, audio thread only.
+ */
+internal class ForkPcmQuantizer(val bits: Int, seed: Long = 0x2545F4914F6CDD1DL) {
+
+    init {
+        require(bits in 8..24) { "dithered to $bits bits" }
+    }
+
+    private val fullScale = (1L shl (bits - 1)).toDouble()
+    private val max = fullScale - 1
+    private val min = -fullScale
+    private var state = if (seed == 0L) 1L else seed
+
+    /** [sample] × [gain] as a [bits]-bit value. */
+    fun quantize(sample: Float, gain: Float): Int {
+        val scaled = sample.toDouble() * gain * fullScale
+        if (scaled.isNaN()) return 0
+        val onGrid = scaled == floor(scaled)
+        val value = if (onGrid) scaled else floor(scaled + tpdf() + 0.5)
+        return when {
+            value >= max -> max.toInt()
+            value <= min -> min.toInt()
+            else -> value.toInt()
+        }
+    }
+
     /** Triangular noise in (−1, 1) step: two uniform draws in [0, 1), one taken from the other. */
     private fun tpdf(): Double = uniform() - uniform()
 
@@ -75,11 +100,5 @@ internal class ForkPcm16Quantizer(seed: Long = 0x2545F4914F6CDD1DL) {
         x = x xor (x ushr 27)
         state = x
         return ((x * 0x2545F4914F6CDD1DL) ushr 11).toDouble() / (1L shl 53).toDouble()
-    }
-
-    companion object {
-        const val FULL_SCALE = 32_768.0
-        private const val MAX = 32_767.0
-        private const val MIN = -32_768.0
     }
 }

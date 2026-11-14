@@ -25,6 +25,36 @@ internal class DesktopAudioSink {
     private val forkPcm16 = ForkPcm16Quantizer()
     private var forkGrid = FloatArray(0) // fork: the WASAPI 16-bit line's samples, already on the 16-bit grid
 
+    /** Fork: the WASAPI exclusive line, used while [forkExclusiveOn] (ForkExclusiveOutput). */
+    private val forkExclusive = ForkExclusiveOutput(ForkWasapiExclusive)
+    @Volatile private var forkExclusiveOn = false
+    /** Fork: the device and setting change an exclusive line failed on mid-stream; not tried again until either changes. */
+    private var forkExclusiveFailedOn: Pair<String, Int>? = null
+
+    /** Fork: whether the output is the exclusive line. */
+    val forkExclusiveActive: Boolean get() = forkExclusiveOn
+
+    /**
+     * Fork: whether a track decoded at [rate] needs the output reopened. Exclusive mode keeps its rate
+     * when the device would get the same one for this track (the converter brings the track to it);
+     * shared mode as before: another rate reopens, except on the Spatial Sound bed.
+     */
+    fun forkNeedsRate(rate: Int): Boolean =
+        if (forkExclusiveOn) {
+            forkExclusive.rateFor(openedForSelection.orEmpty(), rate, format.channels) != format.sampleRate
+        } else {
+            format.sampleRate != rate && !forkSpatial
+        }
+
+    private fun forkWantsExclusive(requested: DesktopPcmFormat, device: String): Boolean =
+        DesktopPlatform.isWindows && ForkExclusiveSetting.enabled.value && requested.channels in 1..2 &&
+            forkExclusive.available && forkExclusiveFailedOn != (device to ForkExclusiveSetting.changes)
+
+    private fun forkCloseExclusive() {
+        if (forkExclusiveOn || forkExclusive.format != null) forkExclusive.close()
+        forkExclusiveOn = false
+    }
+
     /** Kept short: enough to distinguish real samples from a pipeline producing silence. */
     private var diagnosticBlocks = 0
 
@@ -51,6 +81,7 @@ internal class DesktopAudioSink {
     /** Fork: which API the samples go out through, for the pipeline panel (it always said "javax.sound"). */
     val forkOutputApi: String?
         get() = when {
+            forkExclusiveOn -> "WASAPI exclusive · ${forkExclusive.format?.label}" // fork: ForkExclusiveOutput
             windowsOutput && forkSpatial -> "Windows Spatial Sound (7.1 bed)" // fork
             windowsOutput -> "WASAPI shared"
             line != null -> if (DesktopPlatform.isWindows) "Java Sound (DirectSound)" else "Java Sound"
@@ -61,7 +92,7 @@ internal class DesktopAudioSink {
     @Volatile
     var gain: Float = 1f
 
-    val isOpen: Boolean get() = windowsOutput || line != null
+    val isOpen: Boolean get() = windowsOutput || line != null || forkExclusiveOn // fork: forkExclusiveOn
 
     /** Whether the live line already belongs to the choice currently shown in the player. */
     fun isUsingSelection(id: String): Boolean = isOpen && openedForSelection == id
@@ -69,6 +100,36 @@ internal class DesktopAudioSink {
     /** Opens the best line the mixer will give for [requested]. */
     fun open(requested: DesktopPcmFormat): Result<DesktopPcmFormat> = runCatching {
         val selectedDevice = DesktopAudioDevices.selected.value
+        // fork (ForkExclusiveOutput): the exclusive line let go of first, whatever opens next; then, with
+        // "Exclusive mode" on, the device asked for its own formats before shared mode is tried
+        forkCloseExclusive()
+        if (forkWantsExclusive(requested, selectedDevice)) {
+            if (windowsOutput) {
+                DesktopWindowsAudio.close()
+                windowsOutput = false
+                windowsBufferBytes = 0
+            }
+            val opened = forkExclusive.open(selectedDevice, requested.sampleRate, requested.channels)
+            if (opened != null) {
+                val previous = line
+                line = null
+                forkFoldTo = null
+                forkSpatial = false
+                forkExclusiveOn = true
+                openedOn = null
+                openedForSelection = selectedDevice
+                // The engine's side: float at the device's rate; the packer makes the device's bytes.
+                format = DesktopPcmFormat(opened.rate, requested.channels, bytesPerSample = 4, isFloat = true)
+                diagnosticBlocks = 0
+                closeLine(previous)
+                DesktopTrackLog.log(
+                    "audio output opened: ${deviceName ?: "Windows system default"} · " +
+                        "${opened.rate} Hz · ${requested.channels} ch · $forkOutputApi",
+                )
+                return@runCatching format
+            }
+            DesktopTrackLog.log("exclusive mode: the device took none of its formats for ${requested.sampleRate} Hz; shared mode")
+        }
         if (DesktopPlatform.isWindows) {
             // fork (ForkMultichannel): more than two channels open on Spatial Sound or with their speaker mask (was DesktopWindowsAudio.open for all)
             val native = if (requested.channels > 2) ForkWindowsAudioLayout.openBest(selectedDevice, requested) else DesktopWindowsAudio.open(selectedDevice, requested).map { ForkOpenedLine(it, requested, spatial = false) }
@@ -181,6 +242,7 @@ internal class DesktopAudioSink {
      */
     val deviceName: String?
         get() = runCatching {
+            if (forkExclusiveOn) return@runCatching forkExclusive.deviceName() // fork: ForkExclusiveOutput
             if (windowsOutput) {
                 DesktopWindowsAudio.deviceName()
             } else {
@@ -193,7 +255,7 @@ internal class DesktopAudioSink {
 
     /** How much audio the device is holding, in bytes; 0 before the line is open. */
     val bufferBytes: Int
-        get() = if (windowsOutput) windowsBufferBytes else runCatching { line?.bufferSize ?: 0 }.getOrDefault(0)
+        get() = if (forkExclusiveOn) forkExclusive.bufferBytes else if (windowsOutput) windowsBufferBytes else runCatching { line?.bufferSize ?: 0 }.getOrDefault(0) // fork: forkExclusiveOn
 
     /** Writes [count] interleaved samples, blocking until the device takes them. */
     fun write(samples: FloatArray, count: Int): Int {
@@ -203,6 +265,19 @@ internal class DesktopAudioSink {
                 val folded = forkFold.adapt(samples, count, format, stereoLine)
                 return write(forkFold.output, folded) / stereoLine.channels * format.channels
             }
+        }
+        if (forkExclusiveOn) { // fork: ForkExclusiveOutput
+            val frames = forkExclusive.write(samples, count, gain)
+            if (frames >= 0) {
+                val written = frames * format.channels * format.bytesPerSample
+                diagnose(samples, count, written)
+                return written
+            }
+            // The device went away or failed: shared mode at the same rate, so the engine's chain stays as it is.
+            DesktopTrackLog.log("exclusive mode stopped: ${ForkWasapiExclusive.lastError()}; shared mode")
+            forkExclusiveFailedOn = openedForSelection.orEmpty() to ForkExclusiveSetting.changes
+            open(format).onFailure { return 0 }
+            return write(samples, count)
         }
         if (windowsOutput) {
             // fork: a 16-bit line gets its samples rounded and dithered here, volume included, and the native
@@ -272,27 +347,39 @@ internal class DesktopAudioSink {
 
     /** Frames the device has actually rendered — the honest playback position. */
     fun framesPlayed(): Long =
+        if (forkExclusiveOn) forkExclusive.framesPlayed() else // fork: ForkExclusiveOutput
         if (windowsOutput) DesktopWindowsAudio.framesPlayed() else line?.longFramePosition ?: 0L
 
     fun pause() {
+        if (forkExclusiveOn) return forkExclusive.pause() // fork: ForkExclusiveOutput
         if (windowsOutput) DesktopWindowsAudio.pause() else line?.stop()
     }
 
     fun resume() {
+        if (forkExclusiveOn) return forkExclusive.resume() // fork: ForkExclusiveOutput
         if (windowsOutput) DesktopWindowsAudio.resume() else line?.start()
     }
 
     /** Throws away what is queued, so a seek is heard at once. */
     fun flush() {
+        if (forkExclusiveOn) return forkExclusive.flush() // fork: ForkExclusiveOutput
         if (windowsOutput) DesktopWindowsAudio.flush() else line?.flush()
     }
 
     /** Waits for the queue to finish, so the end of a track is not clipped. */
     fun drain() {
+        if (forkExclusiveOn) return forkExclusive.drain() // fork: ForkExclusiveOutput
         if (windowsOutput) DesktopWindowsAudio.drain() else runCatching { line?.drain() }
     }
 
     fun close() {
+        if (forkExclusiveOn) { // fork: ForkExclusiveOutput
+            forkCloseExclusive()
+            openedOn = null
+            openedForSelection = null
+            diagnosticBlocks = 0
+            return
+        }
         if (windowsOutput) {
             DesktopWindowsAudio.close()
             windowsOutput = false

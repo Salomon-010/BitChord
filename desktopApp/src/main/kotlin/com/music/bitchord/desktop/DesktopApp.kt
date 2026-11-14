@@ -6807,6 +6807,7 @@ private fun DesktopSettingsScreen(
                         )
                     }
                     }
+                    ForkExclusiveRow() // fork: WASAPI exclusive mode (ForkExclusiveOutput)
                 }
             }
             if (section == DesktopSettingsSection.DOWNLOADS) item {

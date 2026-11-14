@@ -90,6 +90,7 @@ class DesktopPlaybackEngine(
         // there; the plain `default` mixer follows the desktop's routing on its own under
         // PipeWire, so it needs no help.
         DesktopLinuxAudioWatcher.ensureStarted()
+        ForkExclusiveSetting.onChanged = { commands += Command.Reconfigure } // fork: "Exclusive mode" switched reopens the output (ForkExclusiveOutput)
         // fork: the Automix overview's picks per pair, and its Preview's jump (ForkMixPicks)
         ForkDesktopAutomixStyle.loadPairPicks()
         com.music.bitchord.playback.smart.ForkMixPicks.seek = { seekTo(it) }
@@ -1900,7 +1901,7 @@ class DesktopPlaybackEngine(
         val output = if (
             !sink.isOpen ||
             !sink.isUsingSelection(DesktopAudioDevices.selected.value) ||
-            (sink.format.sampleRate != decoded.sampleRate && !sink.forkSpatial) || // fork: the Spatial Sound bed keeps its rate; readSource converts
+            sink.forkNeedsRate(decoded.sampleRate) || // fork: was (sink.format.sampleRate != decoded.sampleRate && !sink.forkSpatial): the Spatial Sound bed and exclusive mode keep their rate; readSource converts
             sink.format.channels != decoded.channels
         ) {
             sink.open(decoded.copy(bytesPerSample = precisionBytes(), isFloat = preferFloat))
@@ -3112,7 +3113,8 @@ class DesktopPlaybackEngine(
         }
         if (!instantOnly) return false
         val decoded = incoming.decoder.outputFormat
-        val sameFormat = sink.format.sampleRate == decoded.sampleRate && sink.format.channels == decoded.channels
+        val sameRate = if (sink.forkExclusiveActive) !sink.forkNeedsRate(decoded.sampleRate) else sink.format.sampleRate == decoded.sampleRate // fork: exclusive mode stays gapless at its rate (ForkExclusiveOutput)
+        val sameFormat = sameRate && sink.format.channels == decoded.channels // fork: sameRate, was sink.format.sampleRate == decoded.sampleRate
         if (sameFormat) return false // promoteUpcoming: gapless on the open output
         DesktopTrackLog.log("'${incoming.song.title}' starts at the end of '${track.song.title}' at its own rate")
         sink.drain()
@@ -3493,6 +3495,8 @@ class DesktopPlaybackEngine(
 
     /** What the device actually accepted, for the settings screen to report. */
     fun outputSummary(): String = if (!sink.isOpen) "Not started" else with(sink.format) {
+        // fork: exclusive mode says what the device gets ("WASAPI exclusive · 96 kHz · 24-in-32"), not the engine's float
+        if (sink.forkExclusiveActive) return@with "${sink.forkOutputApi} · ${if (channels == 2) "stereo" else "$channels ch"}"
         val depth = if (isFloat) "32-bit float" else "${bytesPerSample * 8}-bit"
         "$depth · ${sampleRate / 1000.0} kHz · ${if (channels == 2) "stereo" else "$channels ch"}"
     }
