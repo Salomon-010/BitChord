@@ -135,14 +135,14 @@ android {
         create("dev") {
             dimension = "env"
             applicationId = "com.dev.bitchord"
-            resValue("string", "app_name", "BitChord Dev")
+            resValue("string", "app_name", "Sigui Dev")
         }
         create("prod") {
             dimension = "env"
             // Matches defaultConfig — this is the package already shipped/installed.
             // fork: its own package, so the fork installs beside the official app
-            applicationId = "com.ayhamo.bitchord"
-            resValue("string", "app_name", "BitChord")
+            applicationId = "com.mouloukou.sigui"
+            resValue("string", "app_name", "Sigui")
         }
     }
 

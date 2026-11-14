@@ -636,9 +636,9 @@ compose.desktop {
                 TargetFormat.Deb,
                 TargetFormat.Rpm,
             )
-            packageName = "BitChord"
+            packageName = "Sigui"
             packageVersion = nativePackageVersion
-            description = if (targetOs == "windows") "BitChord" else "Aesthetic YouTube Music client"
+            description = if (targetOs == "windows") "Sigui" else "Aesthetic YouTube Music client"
             vendor = "BitChord contributors"
             copyright = "Copyright © 2026 BitChord contributors"
 
