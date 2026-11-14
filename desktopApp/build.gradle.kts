@@ -167,6 +167,10 @@ dependencies {
 
 tasks.withType<Test> {
     systemProperty("java.awt.headless", "true")
+    // fork: the tests read the app's copy in English; on a French (or any other) system the app's
+    // "System default" language followed the machine and 26 of them failed on the translation.
+    systemProperty("user.language", "en")
+    systemProperty("user.country", "US")
 }
 
 kotlin {
