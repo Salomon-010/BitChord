@@ -18,6 +18,14 @@ enum class AuthenticityKind {
     Inconclusive,
 }
 
+/** Fork: what a [AuthenticityKind.LossyTranscode] was made from, as far as the spectrum tells. */
+enum class LossySource {
+    /** LAME's low-pass: its rounded shoulder, at one of its default bitrates' frequencies. */
+    Mp3,
+    /** "From a compressed format", nothing more: AAC's abrupt cut, or a low-pass LAME would not leave. */
+    Compressed,
+}
+
 /** Fork: one excerpt's reading: where it was, how many spectrum windows it gave, the drop found in it. */
 data class ExcerptReading(val startSeconds: Double, val windows: Int, val cutoff: Cutoff?)
 
@@ -35,7 +43,9 @@ data class AuthenticityVerdict(
     val confidence: Double,
     /** The agreed low-pass, when one was found in enough excerpts. */
     val cutoffHz: Double?,
-    /** The MP3 bitrate whose LAME low-pass sits nearest [cutoffHz]; indicative only (AAC cuts elsewhere). */
+    /** For a [AuthenticityKind.LossyTranscode] only. */
+    val lossySource: LossySource?,
+    /** The LAME bitrate whose default low-pass this is; only when [lossySource] is [LossySource.Mp3]. */
     val estimatedKbps: Int?,
     val declaredBits: Int,
     /** Bits in use; null when the excerpts held too few non-zero samples. */
@@ -57,7 +67,7 @@ data class AuthenticityVerdict(
 object LosslessAuthenticity {
 
     /** Bumped whenever the maths changes, so stored verdicts can be measured again. */
-    const val VERSION = 1
+    const val VERSION = 2
 
     /** A low-pass at or above this is a genuine 44.1/48 kHz file's anti-alias filter. */
     const val GENUINE_FROM_HZ = 21_000.0
@@ -70,6 +80,18 @@ object LosslessAuthenticity {
     const val AGREE_HZ = 300.0
 
     const val FULL_CONFIDENCE_STEP_DB = 45.0
+
+    /**
+     * An MP3 needs a shoulder at least this wide ([Cutoff.shoulderHz]). Measured on the fixtures:
+     * LAME 86–183 Hz, FFmpeg's AAC 54 Hz (the Hann window's own resolution).
+     */
+    const val MP3_MIN_SHOULDER_HZ = 75.0
+
+    /** Where [CutoffDetector] places LAME's drop: this far under its nominal low-pass (fixtures: 237 and 248 Hz). */
+    const val LAME_MEASURED_OFFSET_HZ = 240.0
+
+    /** And within this of it, or the low-pass is not one of LAME's defaults. */
+    const val LAME_MATCH_HZ = 150.0
 
     /** LAME 3.100's default low-pass per CBR bitrate at 44.1 kHz (`optimum_bandwidth`). */
     private val LAME_LOWPASS = listOf(
@@ -93,11 +115,12 @@ object LosslessAuthenticity {
         val effective = BitDepthProbe.effectiveBits(excerpts)
         val padded = effective != null && effective < declared
 
-        fun verdict(kind: AuthenticityKind, confidence: Double, cutoff: Double? = null) = AuthenticityVerdict(
+        fun verdict(kind: AuthenticityKind, confidence: Double, cutoff: Double? = null, source: LossySource? = null, kbps: Int? = null) = AuthenticityVerdict(
             kind = kind,
             confidence = confidence,
             cutoffHz = cutoff,
-            estimatedKbps = cutoff?.takeIf { it < GENUINE_FROM_HZ }?.let(::nearestLameKbps),
+            lossySource = source,
+            estimatedKbps = kbps,
             declaredBits = declared,
             effectiveBits = effective,
             sampleRate = rate,
@@ -116,8 +139,11 @@ object LosslessAuthenticity {
                 val strength = min(1.0, (step - CutoffDetector.MIN_STEP_DB) / (FULL_CONFIDENCE_STEP_DB - CutoffDetector.MIN_STEP_DB) * 0.5 + 0.5)
                 val confidence = agreeing.size.toDouble() / readable.size * strength
                 val hz = agreeing.map { it.hz }.sorted()[agreeing.size / 2]
-                val kind = if (hz < GENUINE_FROM_HZ) AuthenticityKind.LossyTranscode else AuthenticityKind.Upsampled
-                return verdict(kind, confidence, hz)
+                if (hz >= GENUINE_FROM_HZ) return verdict(AuthenticityKind.Upsampled, confidence, hz)
+                val shoulder = agreeing.map { it.shoulderHz }.sorted()[agreeing.size / 2]
+                val kbps = if (shoulder >= MP3_MIN_SHOULDER_HZ) lameKbps(hz) else null
+                val source = if (kbps != null) LossySource.Mp3 else LossySource.Compressed
+                return verdict(AuthenticityKind.LossyTranscode, confidence, hz, source, kbps)
             }
             // A low-pass in some excerpts only: suspicious, not shown either way.
             if (!padded) return verdict(AuthenticityKind.Inconclusive, 0.0)
@@ -127,5 +153,9 @@ object LosslessAuthenticity {
         return verdict(AuthenticityKind.Genuine, readable.size.toDouble() / readings.size)
     }
 
-    private fun nearestLameKbps(hz: Double): Int = LAME_LOWPASS.minBy { abs(it.second - hz) }.first
+    /** The LAME bitrate whose default low-pass lands at [hz], or null when none does. */
+    private fun lameKbps(hz: Double): Int? = LAME_LOWPASS
+        .minBy { abs(it.second - LAME_MEASURED_OFFSET_HZ - hz) }
+        .takeIf { abs(it.second - LAME_MEASURED_OFFSET_HZ - hz) <= LAME_MATCH_HZ }
+        ?.first
 }

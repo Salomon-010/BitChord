@@ -5,6 +5,7 @@ import com.music.bitchord.audio.authenticity.AuthenticityKind.LossyTranscode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -52,6 +53,7 @@ class LosslessAuthenticityFixturesTest {
     fun `a FLAC made from a 128 kbps MP3 is caught`() {
         val verdict = analyse("mp3-128.s16le")
         assertEquals(LossyTranscode, verdict.kind)
+        assertEquals(LossySource.Mp3, verdict.lossySource)
         assertEquals(128, verdict.estimatedKbps)
         assertTrue(verdict.excerpts.all { it.cutoff != null }, "every excerpt shows it")
     }
@@ -60,13 +62,17 @@ class LosslessAuthenticityFixturesTest {
     fun `a FLAC made from a 320 kbps MP3 is caught`() {
         val verdict = analyse("mp3-320.s16le")
         assertEquals(LossyTranscode, verdict.kind)
+        assertEquals(LossySource.Mp3, verdict.lossySource)
         assertEquals(320, verdict.estimatedKbps)
     }
 
+    /** Its 17.3 kHz cut sits by LAME's 160 kbps one; only the shoulder tells them apart. */
     @Test
-    fun `a FLAC made from a 128 kbps AAC is caught`() {
+    fun `a FLAC made from a 128 kbps AAC is caught, as compressed with no bitrate`() {
         val verdict = analyse("aac-128.s16le")
         assertEquals(LossyTranscode, verdict.kind)
+        assertEquals(LossySource.Compressed, verdict.lossySource)
+        assertNull(verdict.estimatedKbps)
     }
 
     @Test
@@ -75,6 +81,7 @@ class LosslessAuthenticityFixturesTest {
         assertEquals(LossyTranscode, verdict.kind)
         assertEquals(24, verdict.declaredBits)
         assertEquals(16, verdict.effectiveBits)
+        assertEquals(LossySource.Mp3, verdict.lossySource)
         assertEquals(128, verdict.estimatedKbps)
     }
 }

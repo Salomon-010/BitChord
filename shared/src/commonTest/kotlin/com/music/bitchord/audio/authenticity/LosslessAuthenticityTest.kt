@@ -35,15 +35,47 @@ class LosslessAuthenticityTest {
         val verdict = LosslessAuthenticity.analyse(three(Signals.brickwall(16_000.0)))
         assertEquals(LossyTranscode, verdict.kind)
         assertEquals(16_000.0, assertNotNull(verdict.cutoffHz), 150.0)
-        assertEquals(112, verdict.estimatedKbps)
         assertTrue(verdict.confidence > 0.9, "confidence ${verdict.confidence}")
     }
 
     @Test
-    fun `a 20_5 kHz low-pass reads as 320 kbps`() {
-        val verdict = LosslessAuthenticity.analyse(three(Signals.brickwall(20_500.0)))
+    fun `LAME's low-pass at 128 kbps gives the bitrate`() {
+        val verdict = LosslessAuthenticity.analyse(three(Signals.lameLowpass(17_000.0)))
         assertEquals(LossyTranscode, verdict.kind)
+        assertEquals(LossySource.Mp3, verdict.lossySource)
+        assertEquals(128, verdict.estimatedKbps)
+    }
+
+    @Test
+    fun `LAME's low-pass at 320 kbps gives the bitrate`() {
+        val verdict = LosslessAuthenticity.analyse(three(Signals.lameLowpass(20_500.0)))
+        assertEquals(LossySource.Mp3, verdict.lossySource)
         assertEquals(320, verdict.estimatedKbps)
+    }
+
+    /** AAC's cut: it zeroes everything past its bandwidth, so the drop has no shoulder. */
+    @Test
+    fun `an abrupt low-pass only says compressed, even at a LAME frequency`() {
+        val verdict = LosslessAuthenticity.analyse(three(Signals.brickwall(16_800.0)))
+        assertEquals(LossyTranscode, verdict.kind)
+        assertEquals(LossySource.Compressed, verdict.lossySource)
+        assertNull(verdict.estimatedKbps)
+    }
+
+    /** MP3-shaped, but at none of LAME's default frequencies: another encoder or setting, so no bitrate. */
+    @Test
+    fun `a rounded low-pass away from LAME's defaults only says compressed`() {
+        val verdict = LosslessAuthenticity.analyse(three(Signals.lameLowpass(18_100.0)))
+        assertEquals(LossyTranscode, verdict.kind)
+        assertEquals(LossySource.Compressed, verdict.lossySource)
+        assertNull(verdict.estimatedKbps)
+    }
+
+    @Test
+    fun `only a lossy transcode names a source`() {
+        assertNull(LosslessAuthenticity.analyse(three(Signals.pink)).lossySource)
+        assertNull(LosslessAuthenticity.analyse(three(Signals.pink, bits = 16, shift = 8)).lossySource)
+        assertNull(LosslessAuthenticity.analyse(three(Signals.brickwall(22_000.0), sampleRate = 96_000, bits = 24)).lossySource)
     }
 
     @Test
@@ -75,7 +107,7 @@ class LosslessAuthenticityTest {
 
     @Test
     fun `a padded 24-bit file made from an MP3 says both`() {
-        val verdict = LosslessAuthenticity.analyse(three(Signals.brickwall(17_000.0), bits = 16, shift = 8))
+        val verdict = LosslessAuthenticity.analyse(three(Signals.lameLowpass(17_000.0), bits = 16, shift = 8))
         assertEquals(LossyTranscode, verdict.kind)
         assertEquals(16, verdict.effectiveBits)
         assertEquals(128, verdict.estimatedKbps)

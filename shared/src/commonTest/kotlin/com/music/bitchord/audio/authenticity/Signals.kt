@@ -19,6 +19,21 @@ internal object Signals {
     fun brickwall(hz: Double, shape: (Double) -> Double = pink): (Double) -> Double = { f -> if (f <= hz) shape(f) else 0.0 }
 
     /**
+     * A low-pass shaped like LAME's around its nominal [lowpass]: a raised-cosine roll-off from
+     * 750 Hz under it to 200 Hz under it, which [CutoffDetector] reads as a ~220 Hz shoulder and a
+     * drop ~240 Hz under [lowpass], as it reads the real encoder's (the fixtures: 86–183 Hz, 237–248 Hz).
+     */
+    fun lameLowpass(lowpass: Double, shape: (Double) -> Double = pink): (Double) -> Double = { f ->
+        val start = lowpass - 750
+        val end = lowpass - 200
+        when {
+            f <= start -> shape(f)
+            f >= end -> 0.0
+            else -> shape(f) * 0.5 * (1 + cos(PI * (f - start) / (end - start)))
+        }
+    }
+
+    /**
      * [frames] (a power of two) of noise per channel whose amplitude spectrum follows [shape],
      * peaking at −6 dBFS, rounded to [bits] with TPDF dither (so above a low-pass there is the
      * dither floor a real file has, not digital silence). [shift] then moves the samples left,

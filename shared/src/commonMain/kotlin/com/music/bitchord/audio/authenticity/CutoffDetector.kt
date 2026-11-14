@@ -6,8 +6,14 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-/** Fork: a sharp drop in a [Spectrum]: [hz] where the level falls, [stepDb] how far it falls. */
-data class Cutoff(val hz: Double, val stepDb: Double)
+/**
+ * Fork: a sharp drop in a [Spectrum]: [hz] where the level falls, [stepDb] how far it falls, and
+ * [shoulderHz] how wide its top is (from [CutoffDetector.SHOULDER_TOP_DB] to
+ * [CutoffDetector.SHOULDER_BOTTOM_DB] under the level before it). LAME's polyphase low-pass rolls
+ * off over ~150 Hz there; an AAC encoder zeroing its coefficients past the bandwidth drops within
+ * the window's own resolution (~50 Hz).
+ */
+data class Cutoff(val hz: Double, val stepDb: Double, val shoulderHz: Double = 0.0)
 
 /**
  * Fork: finds the brick-wall low-pass a lossy encoder leaves (LAME's 17 kHz at 128 kbps, 20.5 kHz at
@@ -72,7 +78,32 @@ object CutoffDetector {
         for (band in bestEdge - span until min(bestEdge + span, count)) {
             if (level[band] >= half) last = band
         }
-        return Cutoff(hz = (last + 1) * bandHz, stepDb = bestBelow - bestAbove)
+        val hz = (last + 1) * bandHz
+        return Cutoff(hz = hz, stepDb = bestBelow - bestAbove, shoulderHz = shoulder(spectrum, hz, bestBelow))
+    }
+
+    /** dB under the level before the drop where the shoulder starts and ends. */
+    const val SHOULDER_TOP_DB = 3.0
+    const val SHOULDER_BOTTOM_DB = 20.0
+    /** How far either side of the drop the shoulder is looked for. */
+    private const val SHOULDER_SEARCH_HZ = 600.0
+
+    /**
+     * Bin by bin (three averaged, to steady the noise) around [hz]: from the last bin still within
+     * [SHOULDER_TOP_DB] of [before] to the first after it [SHOULDER_BOTTOM_DB] under.
+     */
+    private fun shoulder(spectrum: Spectrum, hz: Double, before: Double): Double {
+        val last = spectrum.power.size - 2
+        val from = max(1, ((hz - SHOULDER_SEARCH_HZ) / spectrum.binHz).toInt())
+        val to = min(last, ((hz + SHOULDER_SEARCH_HZ) / spectrum.binHz).toInt())
+        fun level(bin: Int) = 10.0 * log10((spectrum.power[bin - 1] + spectrum.power[bin] + spectrum.power[bin + 1]) / 3.0 + 1e-30)
+        var top = -1
+        for (bin in from..to) if (level(bin) >= before - SHOULDER_TOP_DB) top = bin
+        if (top < 0) return 0.0
+        for (bin in top + 1..to) {
+            if (level(bin) <= before - SHOULDER_BOTTOM_DB) return (bin - top) * spectrum.binHz
+        }
+        return (to - top) * spectrum.binHz
     }
 
     private fun mean(values: DoubleArray, from: Int, to: Int): Double {
